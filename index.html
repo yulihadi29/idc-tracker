@@ -192,6 +192,10 @@
             border-color: var(--success);
             background-color: rgba(16, 185, 129, 0.01);
         }
+        .client-card.is-approved {
+            border-color: #2563eb;
+            background-color: rgba(37, 99, 235, 0.02);
+        }
         .client-title { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
         
         .progress-bar-container {
@@ -286,6 +290,53 @@
         }
         .badge-badan { background: #e0f2fe; color: #0369a1; }
         .badge-perorangan { background: #fef3c7; color: #b45309; }
+
+        /* Style Baru Untuk Fitur Notifikasi & Klarifikasi */
+        .notification-banner {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .notification-banner.revision { background-color: #fef2f2; color: #991b1b; border: 1px solid #fee2e2; }
+        .notification-banner.approved { background-color: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
+        
+        .clarification-section {
+            margin-top: 30px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            padding: 20px;
+            border-radius: var(--radius);
+        }
+        .clarification-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            background: var(--bg-main);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .clarification-form div { display: flex; flex-direction: column; gap: 5px; }
+        .clarification-form label { font-size: 12px; font-weight: 600; }
+        .clarification-form input, .clarification-form select { padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); }
+
+        /* CSS Baru untuk Input Request Extend & Modal/Inline Area */
+        .extend-input-group {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
     </style>
 </head>
 <body>
@@ -474,6 +525,65 @@
 
         <h2 style="margin-bottom: 15px;">📋 Matriks Progres Kerja Klien Berjalan</h2>
         <div class="client-grid" id="worksheetMainGrid"></div>
+
+        <!-- 2. PANEL PENYETUJUAN PERPANJANGAN DEADLINE KLARIFIKASI OLEH SUPERVISOR -->
+        <div id="supervisorClarifyExtendPanel" class="panel" style="display: none; border-color: #8b5cf6; background-color: rgba(139, 92, 246, 0.02);">
+            <h3 style="margin-top: 0; color: #6d28d9;">⏳ Permohonan Perpanjangan Deadline Catatan Klarifikasi PIC</h3>
+            <table id="supervisorClarifyRequestsTable">
+                <thead>
+                    <tr>
+                        <th>Nama PIC</th>
+                        <th>Nama Klien</th>
+                        <th>Isi Catatan Klarifikasi</th>
+                        <th>Deadline Awal</th>
+                        <th>Alasan & Permintaan PIC</th>
+                        <th>Aksi Keputusan Supervisor</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="clarification-section" id="clarificationWorkspacePanel">
+            <h2 style="color: var(--primary); margin-top: 0; display:flex; align-items:center; gap: 10px;">📌 Log Catatan Klarifikasi Jobdesc Pekerjaan Klien</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: -5px;">Catatan independen tim PIC diluar matriks progres utama untuk mengklarifikasi jobdesc yang memiliki batas penyelesaian maksimal 2 minggu.</p>
+            
+            <!-- Tambahan Filter Sort per PIC di area Klarifikasi khusus Supervisor -->
+            <div id="supervisorClarifySortZone" style="display: none; background: var(--bg-main); padding: 12px; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px;">
+                <span>🔍 <strong>Filter Sort per PIC (Klarifikasi):</strong></span>
+                <select id="supervisorClarifyPicSortSelect" onchange="renderClarificationNotesTable()" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 500;"></select>
+            </div>
+
+            <div id="clarifyFormContainerZone" class="clarification-form">
+                <div>
+                    <label>Pilih Klien Yang Di-handle:</label>
+                    <select id="clarifyClientSelect"></select>
+                </div>
+                <div>
+                    <label>Isi Catatan / Poin Klarifikasi Jobdesc:</label>
+                    <input type="text" id="clarifyNoteText" placeholder="Tulis hal yang perlu diklarifikasi...">
+                </div>
+                <div>
+                    <label>Deadline Penyelesaian (Max. 2 Minggu):</label>
+                    <input type="date" id="clarifyDeadlineDate">
+                </div>
+                <button onclick="createNewClarificationNote()" class="btn-success">➕ Simpan Catatan</button>
+            </div>
+
+            <table id="clarificationNotesTable">
+                <thead>
+                    <tr>
+                        <th>Nama PIC</th>
+                        <th>Perusahaan Klien</th>
+                        <th>Poin Klarifikasi Jobdesc</th>
+                        <th>Sisa Waktu / Deadline</th>
+                        <th>Status Kontrol</th>
+                        <th>Aksi / Permohonan Waktu</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -498,8 +608,10 @@
         let approvedBypasses = {};
         let panelViewMode = localStorage.getItem('idc_panel_view_mode_v4') || 'detail';
 
+        // Array Database Baru untuk menyimpan Catatan Klarifikasi
+        let appClarifications = [];
+
         let loggedInUser = null;
-        // Penyesuaian Utama: Ambil periode dari localStorage jika ada, default ke Juni 2026 jika kosong
         let activePeriod = localStorage.getItem('idc_active_period_v4') || "2026-06";
 
         // Memuat semua data dari Google Sheets sewaktu aplikasi pertama kali dibuka
@@ -518,6 +630,7 @@
                 appWorksheets = data.worksheets || [];
                 appBypassRequests = data.bypassRequests || [];
                 approvedBypasses = data.approvedBypasses || {};
+                appClarifications = data.clarifications || [];
 
                 initLoginInterface();
                 
@@ -526,40 +639,40 @@
                 console.log("Sinkronisasi Cloud Google Sheet Berhasil!");
             } catch (err) {
                 console.error("Gagal terhubung ke Cloud Sheet. Menggunakan cadangan lokal...", err);
-                // Fallback otomatis jika internet offline atau script belum dideploy
                 appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
                 appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
                 appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
                 appBypassRequests = JSON.parse(localStorage.getItem('idc_bypass_requests_v4')) || [];
                 approvedBypasses = JSON.parse(localStorage.getItem('idc_approved_bypasses_v4')) || {};
+                appClarifications = JSON.parse(localStorage.getItem('idc_clarifications_v4')) || [];
                 initLoginInterface();
             }
         }
 
         // Fungsi Sinkronisasi Utama: Kirim & Simpan Data Langsung Ke Google Sheets Cloud
         async function saveStateToLocalStorage() {
-            // Tetap simpan di localStorage sebagai cadangan offline kualifikasi client-side
             localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
             localStorage.setItem('idc_clients_v4', JSON.stringify(appClients));
             localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
             localStorage.setItem('idc_bypass_requests_v4', JSON.stringify(appBypassRequests));
             localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
+            localStorage.setItem('idc_clarifications_v4', JSON.stringify(appClarifications));
             localStorage.setItem('idc_active_period_v4', activePeriod);
 
-            // Kirim muatan data penuh secara Asynchronous ke Google Sheet API 
             let payload = {
                 action: "saveAll",
                 users: appUsers,
                 clients: appClients,
                 worksheets: appWorksheets,
                 bypassRequests: appBypassRequests,
-                approvedBypasses: approvedBypasses
+                approvedBypasses: approvedBypasses,
+                clarifications: appClarifications
             };
 
             try {
                 await fetch(WEB_APP_URL, {
                     method: "POST",
-                    mode: "no-cors", // Mencegah Error CORS lintas domain browser
+                    mode: "no-cors", 
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
@@ -569,7 +682,6 @@
             }
         }
 
-        // Matikan fungsi pemantau storage bawaan lokal agar tidak berbenturan dengan siklus cloud fetch
         window.addEventListener('storage', (e) => { return; });
 
         function generateMonthlyWorksheetsIfNotExist(period) {
@@ -611,7 +723,12 @@
                         extraWorkExplanation: "",
                         attachments: { accounting: "", tax: "", special: "" },
                         services: services,
-                        tasks: taskList
+                        tasks: taskList,
+                        supervisorReview: {
+                            status: "none", 
+                            notes: "",
+                            timestamp: ""
+                        }
                     });
                     stateChanged = true;
                 }
@@ -698,32 +815,42 @@
             document.getElementById('sessionDisplay').innerText = `User: ${user.name} [${user.role.toUpperCase()}]`;
             document.getElementById('loginPassword').value = "";
 
-            // Sinkronisasi elemen select dengan activePeriod yang tersimpan di sistem
             document.getElementById('currentPeriodFilter').value = activePeriod;
 
             if (user.role === "supervisor") {
                 document.getElementById('supervisorKpiPanel').style.display = "block";
                 document.getElementById('supervisorRequestsPanel').style.display = "block";
                 document.getElementById('supervisorControlPanel').style.display = "block";
+                document.getElementById('supervisorClarifyExtendPanel').style.display = "block"; 
                 document.getElementById('supervisorPicFilterZone').style.display = "flex";
                 document.getElementById('supervisorClientTypeFilterZone').style.display = "flex";
                 document.getElementById('supervisorOverrideNotice').style.display = "inline";
+                document.getElementById('clarifyFormContainerZone').style.display = "none"; 
+                document.getElementById('supervisorClarifySortZone').style.display = "flex"; // Tampilkan filter sort PIC klarifikasi
                 document.getElementById('panelViewSelector').value = panelViewMode;
                 togglePanelViewMode(panelViewMode);
                 buildSupervisorPicDropdownFilter();
+                buildSupervisorClarifySortDropdown(); // Inisialisasi data option filter sort PIC
                 renderSupervisorTables();
                 renderSupervisorRequests();
+                renderSupervisorClarificationRequests();
             } else {
                 document.getElementById('supervisorKpiPanel').style.display = "none";
                 document.getElementById('supervisorRequestsPanel').style.display = "none";
                 document.getElementById('supervisorControlPanel').style.display = "none";
+                document.getElementById('supervisorClarifyExtendPanel').style.display = "none";
                 document.getElementById('supervisorPicFilterZone').style.display = "none";
                 document.getElementById('supervisorClientTypeFilterZone').style.display = "none";
                 document.getElementById('supervisorOverrideNotice').style.display = "none";
+                document.getElementById('clarifyFormContainerZone').style.display = "grid"; 
+                document.getElementById('supervisorClarifySortZone').style.display = "none"; // Sembunyikan jika login sebagai PIC
+                buildPicClientDropdown();
+                setClarifyDefaultDeadline();
             }
 
             generateMonthlyWorksheetsIfNotExist(activePeriod);
             renderMainWorkspace();
+            renderClarificationNotesTable();
             checkPeriodLockStatus();
         }
 
@@ -740,6 +867,36 @@
             appUsers.filter(u => u.role === 'pic').forEach(p => {
                 filterSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
             });
+        }
+
+        // Fungsi Baru untuk Mengisi Filter Sort PIC pada panel log klarifikasi supervisor
+        function buildSupervisorClarifySortDropdown() {
+            const clarifySortSelect = document.getElementById('supervisorClarifyPicSortSelect');
+            clarifySortSelect.innerHTML = `<option value="ALL">-- Semua PIC --</option>`;
+            appUsers.filter(u => u.role === 'pic').forEach(p => {
+                clarifySortSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            });
+        }
+
+        function buildPicClientDropdown() {
+            const select = document.getElementById('clarifyClientSelect');
+            select.innerHTML = '';
+            const picClients = appClients.filter(c => c.pic === loggedInUser.id && c.isActive);
+            if(picClients.length === 0) {
+                select.innerHTML = '<option value="">Tidak ada klien yang dihandle</option>';
+                return;
+            }
+            picClients.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+        }
+
+        function setClarifyDefaultDeadline() {
+            const dateInput = document.getElementById('clarifyDeadlineDate');
+            const maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 14); 
+            dateInput.value = maxDate.toISOString().split('T')[0];
+            dateInput.max = maxDate.toISOString().split('T')[0]; 
         }
 
         function checkPeriodLockStatus() {
@@ -800,7 +957,6 @@
 
             document.getElementById('periodLockMessage').style.display = "none";
             activePeriod = targetPeriod;
-            // Menyimpan periode aktif baru ke localStorage agar tidak ter-reset
             localStorage.setItem('idc_active_period_v4', activePeriod);
             generateMonthlyWorksheetsIfNotExist(activePeriod);
             renderMainWorkspace();
@@ -1001,6 +1157,7 @@
             document.getElementById('newPicName').value = '';
             renderSupervisorTables();
             buildSupervisorPicDropdownFilter();
+            buildSupervisorClarifySortDropdown(); // Update filter sort PIC baru
             initLoginInterface();
         }
 
@@ -1010,6 +1167,7 @@
                 saveStateToLocalStorage();
                 renderSupervisorTables();
                 buildSupervisorPicDropdownFilter();
+                buildSupervisorClarifySortDropdown(); // Update filter sort PIC berkurang
                 initLoginInterface();
             }
         }
@@ -1152,10 +1310,291 @@
             }
 
             ws.isClosed = true;
+            if(!ws.supervisorReview) {
+                ws.supervisorReview = { status: "none", notes: "", timestamp: "" };
+            }
+            ws.supervisorReview.status = "none"; 
+
             saveStateToLocalStorage();
             renderMainWorkspace();
             checkPeriodLockStatus();
-            alert(`Progress untuk ${ws.clientName} resmi CLOSED & dikunci.`);
+            alert(`Progress untuk ${ws.clientName} resmi CLOSED & diajukan ke Supervisor.`);
+        }
+
+        function processSupervisorReview(wsId, actionStatus) {
+            const ws = appWorksheets.find(w => w.id === wsId);
+            if(!ws) return;
+
+            const reviewNoteInput = document.getElementById(`reviewNote_${wsId}`).value.trim();
+            if(!reviewNoteInput) {
+                alert("Gagal! Tuliskan Catatan Hasil Evaluasi atau Deskripsi Revisi terlebih dahulu.");
+                return;
+            }
+
+            if(!ws.supervisorReview) {
+                ws.supervisorReview = { status: "none", notes: "", timestamp: "" };
+            }
+
+            ws.supervisorReview.notes = reviewNoteInput;
+            ws.supervisorReview.timestamp = new Date().toLocaleString('id-ID');
+
+            if(actionStatus === 'revision') {
+                ws.isClosed = false; 
+                ws.supervisorReview.status = "revision";
+                alert(`Notifikasi Revisi berhasil dikirim! Status berkas ${ws.clientName} otomatis berubah menjadi OPEN kembali.`);
+            } else if(actionStatus === 'approved') {
+                ws.isClosed = true;
+                ws.supervisorReview.status = "approved";
+                alert(`Dokumen disetujui! PIC akan menerima perintah: "Report dapat di email ke klien".`);
+            }
+
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+        }
+
+        function createNewClarificationNote() {
+            const clientId = document.getElementById('clarifyClientSelect').value;
+            const noteText = document.getElementById('clarifyNoteText').value.trim();
+            const deadlineVal = document.getElementById('clarifyDeadlineDate').value;
+
+            if(!clientId || !noteText || !deadlineVal) {
+                alert("Mohon lengkapi semua bidang input data klarifikasi!");
+                return;
+            }
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const selectedDate = new Date(deadlineVal);
+            selectedDate.setHours(0,0,0,0);
+            
+            const differenceInTime = selectedDate.getTime() - today.getTime();
+            const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+            if(differenceInDays > 14) {
+                alert("Gagal! Aturan batas waktu penyelesaian awal tidak boleh lebih dari 2 minggu (14 hari).");
+                return;
+            }
+            if(differenceInDays < 0) {
+                alert("Gagal! Deadline tidak boleh memilih tanggal yang sudah berlalu.");
+                return;
+            }
+
+            const clientObj = appClients.find(c => c.id === clientId);
+
+            appClarifications.push({
+                id: 'clarify_' + Date.now(),
+                picId: loggedInUser.id,
+                picName: loggedInUser.name,
+                clientId: clientId,
+                clientName: clientObj.name,
+                note: noteText,
+                deadline: deadlineVal,
+                status: "active", 
+                extendRequested: false,
+                extendReason: "",       // Properti baru untuk menyimpan alasan perpanjangan waktu
+                extendDaysRequested: 0  // Properti baru untuk menyimpan durasi tambahan waktu yang diminta
+            });
+
+            document.getElementById('clarifyNoteText').value = '';
+            setClarifyDefaultDeadline();
+            saveStateToLocalStorage();
+            renderClarificationNotesTable();
+            if(loggedInUser.role === 'supervisor') renderSupervisorClarificationRequests();
+        }
+
+        // 1. UPDATE FUNGSI PIC UNTUK MENGIRIM PERMOHONAN BESERTA ALASAN DAN LAMA DURASI
+        function requestExtendClarify(noteId) {
+            const note = appClarifications.find(c => c.id === noteId);
+            if(!note) return;
+
+            const reason = document.getElementById(`extendReason_${noteId}`).value.trim();
+            const days = parseInt(document.getElementById(`extendDays_${noteId}`).value);
+
+            if(!reason) {
+                alert("Gagal! Mohon isi alasan permohonan tambahan waktu.");
+                return;
+            }
+            if(!days || days <= 0) {
+                alert("Gagal! Mohon tentukan berapa lama waktu tambahan yang dibutuhkan (minimal 1 hari).");
+                return;
+            }
+
+            const confirmReq = confirm(`Kirim permohonan perpanjangan waktu pengerjaan klarifikasi ini selama ${days} hari?`);
+            if(confirmReq) {
+                note.status = "request_extend";
+                note.extendRequested = true;
+                note.extendReason = reason;
+                note.extendDaysRequested = days;
+                
+                saveStateToLocalStorage();
+                renderClarificationNotesTable();
+                alert("Permohonan ekstensi penambahan waktu berhasil dikirim ke Supervisor.");
+            }
+        }
+
+        function resolveClarifyNote(noteId) {
+            const note = appClarifications.find(c => c.id === noteId);
+            if(!note) return;
+            note.status = "resolved";
+            saveStateToLocalStorage();
+            renderClarificationNotesTable();
+            alert("Catatan klarifikasi ditandai selesai.");
+        }
+
+        // 2. RENDERING TABEL SUPERVISOR: MENAMPILKAN ALASAN, DURASI PENGAJUAN, DAN INPUT HAK PUTUSAN SUPERVISOR
+        function renderSupervisorClarificationRequests() {
+            const tbody = document.querySelector('#supervisorClarifyRequestsTable tbody');
+            tbody.innerHTML = '';
+            const requests = appClarifications.filter(c => c.status === "request_extend");
+
+            if(requests.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); font-style:italic;">Tidak ada request extend catatan saat ini.</td></tr>`;
+                return;
+            }
+
+            requests.forEach(req => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${req.picName}</strong></td>
+                        <td><strong>${req.clientName}</strong></td>
+                        <td>"${req.note}"</td>
+                        <td><span class="badge-late" style="background:#dc2626;">${req.deadline}</span></td>
+                        <td>
+                            <div style="font-size:12px;">
+                                <strong>Alasan:</strong> "${req.extendReason || '-'}"<br>
+                                <strong>Diajukan:</strong> <span style="color:var(--danger); font-weight:bold;">+${req.extendDaysRequested || 0} Hari</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; flex-direction:column; gap:5px;">
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <label style="font-size:11px; font-weight:bold;">Berikan Tambahan:</label>
+                                    <input type="number" id="supApprovedDays_${req.id}" value="${req.extendDaysRequested || 14}" min="1" style="width:55px; padding:3px; font-size:11px; border-radius:4px; border:1px solid var(--border-color);">
+                                    <span style="font-size:11px;">Hari</span>
+                                </div>
+                                <div style="display:flex; gap:5px;">
+                                    <button onclick="respondClarifyExtend('${req.id}', true)" class="btn-success" style="padding:4px 8px; font-size:11px; flex:1;">Setujui</button>
+                                    <button onclick="respondClarifyExtend('${req.id}', false)" class="btn-danger" style="padding:4px 8px; font-size:11px; flex:1;">Tolak</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 2. PROSES APPROVE DENGAN DURASI MANDIRI DARI KEPUTUSAN SUPERVISOR
+        function respondClarifyExtend(noteId, isApproved) {
+            const note = appClarifications.find(c => c.id === noteId);
+            if(!note) return;
+
+            if(isApproved) {
+                // Mengambil nilai durasi yang ditentukan oleh supervisor secara independen, bukan dari yang diajukan PIC
+                const allowedDays = parseInt(document.getElementById(`supApprovedDays_${noteId}`).value);
+                if(!allowedDays || allowedDays <= 0) {
+                    alert("Jumlah hari yang diberikan harus valid (minimal 1 hari)!");
+                    return;
+                }
+
+                const currentDeadline = new Date(note.deadline);
+                currentDeadline.setDate(currentDeadline.getDate() + allowedDays); 
+                note.deadline = currentDeadline.toISOString().split('T')[0];
+                note.status = "active";
+                alert(`Permohonan disetujui! Supervisor memberikan tambahan waktu ${allowedDays} hari. Batas waktu ${note.picName} diperpanjang hingga ${note.deadline}.`);
+            } else {
+                note.status = "active";
+                alert("Permohonan perpanjangan waktu resmi ditolak.");
+            }
+
+            saveStateToLocalStorage();
+            renderSupervisorClarificationRequests();
+            renderClarificationNotesTable();
+        }
+
+        // 2. UPDATE FILTER & AREA INPUT UNTUK PIC PADA TABEL LOG UTAMA KLARIFIKASI
+        function renderClarificationNotesTable() {
+            const tbody = document.querySelector('#clarificationNotesTable tbody');
+            tbody.innerHTML = '';
+
+            let targetNotes = appClarifications;
+            
+            // Logika Sort & Filter Data per PIC untuk Akun Supervisor vs Akun PIC
+            if(loggedInUser && loggedInUser.role === 'pic') {
+                targetNotes = appClarifications.filter(c => c.picId === loggedInUser.id);
+            } else if(loggedInUser && loggedInUser.role === 'supervisor') {
+                const selectedClarifyPicFilter = document.getElementById('supervisorClarifyPicSortSelect').value;
+                if(selectedClarifyPicFilter !== 'ALL') {
+                    targetNotes = appClarifications.filter(c => c.picId === selectedClarifyPicFilter);
+                }
+            }
+
+            if(targetNotes.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); font-style:italic;">Belum ada catatan log klarifikasi tersimpan.</td></tr>`;
+                return;
+            }
+
+            targetNotes.forEach(n => {
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const dl = new Date(n.deadline);
+                dl.setHours(0,0,0,0);
+                const diffTime = dl.getTime() - today.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
+
+                let badgeWaktu = '';
+                if(n.status === 'resolved') {
+                    badgeWaktu = '<span style="color:var(--success); font-weight:bold;">✓ Clear</span>';
+                } else if(diffDays < 0) {
+                    badgeWaktu = `<span class="badge-late">LATE ${Math.abs(diffDays)} Hari</span>`;
+                } else {
+                    badgeWaktu = `<span style="font-size:12px; font-weight:600;">⏳ ${diffDays} Hari Lagi (${n.deadline})</span>`;
+                }
+
+                let statusBadge = '';
+                if(n.status === 'active') statusBadge = '🟢 Berjalan';
+                if(n.status === 'resolved') statusBadge = '🔵 Selesai Teratasi';
+                if(n.status === 'request_extend') statusBadge = '🟡 Menunggu Approval Extend';
+
+                let actionButtons = '';
+                if(loggedInUser.role === 'pic' && n.status !== 'resolved') {
+                    actionButtons += `<button onclick="resolveClarifyNote('${n.id}')" class="btn-success" style="padding:4px 8px; font-size:11px; margin-right:5px; margin-bottom: 5px; width: 100%;">Set Selesai</button>`;
+                    
+                    if(n.status !== 'request_extend') {
+                        // Form Input Alasan & Durasi Permohonan Tambahan Waktu untuk Akun PIC
+                        actionButtons += `
+                            <div class="extend-input-group">
+                                <input type="text" id="extendReason_${n.id}" placeholder="Alasan perpanjangan waktu..." style="padding:4px; font-size:11px; border-radius:4px; border:1px solid var(--border-color);">
+                                <div style="display:flex; align-items:center; gap:4px;">
+                                    <input type="number" id="extendDays_${n.id}" placeholder="Hari" min="1" value="14" style="width:50px; padding:4px; font-size:11px; border-radius:4px; border:1px solid var(--border-color);">
+                                    <span style="font-size:11px; color:var(--text-main);">Hari tambahan</span>
+                                </div>
+                                <button onclick="requestExtendClarify('${n.id}')" class="btn-warning" style="padding:4px 8px; font-size:11px; color:#000; width: 100%; font-weight: bold;">Kirim Request</button>
+                            </div>
+                        `;
+                    } else {
+                        actionButtons += `<div style="font-size:11px; color:var(--text-muted); font-style:italic;">Meminta +${n.extendDaysRequested} Hari karena "${n.extendReason}"</div>`;
+                    }
+                } else if(loggedInUser.role === 'supervisor') {
+                    if(n.status === 'request_extend') {
+                        actionButtons = `<span style="font-size:11px; color:var(--warning); font-weight:bold;">Perlu Tindakan di Atas</span>`;
+                    } else {
+                        actionButtons = `<span style="font-size:11px; color:var(--text-muted);">Monitored</span>`;
+                    }
+                } else {
+                    actionButtons = `-`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${n.picName}</strong></td>
+                        <td>${n.clientName}</td>
+                        <td>${n.note}</td>
+                        <td>${badgeWaktu}</td>
+                        <td><span style="font-size:12px; font-weight:500;">${statusBadge}</span></td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            });
         }
 
         function renderMainWorkspace() {
@@ -1236,7 +1675,12 @@
                 const progressPercentage = coreTasks.length > 0 ? Math.round((completedCore / coreTasks.length) * 100) : 0;
 
                 const card = document.createElement('div');
-                card.className = `client-card ${ws.isClosed ? 'is-closed' : ''}`;
+                
+                let statusReviewClass = ws.isClosed ? 'is-closed' : '';
+                if(ws.supervisorReview && ws.supervisorReview.status === 'approved') {
+                    statusReviewClass = 'is-approved';
+                }
+                card.className = `client-card ${statusReviewClass}`;
 
                 let picSelectionWidget = '';
                 let deleteUnassignedButton = '';
@@ -1268,14 +1712,37 @@
                 let cType = ws.clientType || "Badan";
                 let typeBadge = `<span class="badge-client-type ${cType === 'Perorangan' ? 'badge-perorangan' : 'badge-badan'}">${cType}</span>`;
 
+                let notificationBannerHtml = '';
+                if(ws.supervisorReview) {
+                    if(ws.supervisorReview.status === 'revision') {
+                        notificationBannerHtml = `
+                            <div class="notification-banner revision">
+                                🚨 <strong>Revisi Internal Supervisor (${ws.supervisorReview.timestamp}):</strong> "${ws.supervisorReview.notes}"
+                            </div>
+                        `;
+                    } else if(ws.supervisorReview.status === 'approved') {
+                        notificationBannerHtml = `
+                            <div class="notification-banner approved">
+                                 ✅ <strong>Approved (${ws.supervisorReview.timestamp}):</strong> Report dapat di email ke klien.
+                            </div>
+                        `;
+                    }
+                }
+
+                let displayStatusString = ws.isClosed ? '🟢 CLOSED' : '⏳ OPEN';
+                if(ws.supervisorReview && ws.supervisorReview.status === 'approved') {
+                    displayStatusString = '💎 APPROVED & FINALIZED';
+                }
+
                 let htmlContent = `
+                    ${notificationBannerHtml}
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
                         <div class="client-title" style="margin:0;">${ws.clientName} ${typeBadge}</div>
                         ${deleteUnassignedButton}
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
                         <div style="font-size:12px; color:var(--text-muted); font-weight:bold;">
-                            Status Berkas: ${ws.isClosed ? '🟢 CLOSED' : '⏳ OPEN'}
+                            Status Berkas: ${displayStatusString}
                         </div>
                         ${picSelectionWidget}
                     </div>
@@ -1373,6 +1840,7 @@
                             value="${ws.attachments.special || ''}" ${fieldsDisabled ? 'disabled' : ''} 
                             onchange="updateAttachmentLink('${ws.id}', 'special', this.value)">
                         ` : ''}
+                    </div>
                 `;
 
                 if (!ws.isClosed) {
@@ -1382,23 +1850,38 @@
                     `;
                 } else {
                     if (loggedInUser.role === 'supervisor') {
+                        let savedRevNote = (ws.supervisorReview && ws.supervisorReview.notes) ? ws.supervisorReview.notes : '';
+                        
                         htmlContent += `
-                            <div style="margin-top:10px; margin-bottom: 5px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
-                                ✓ Dokumen Closed (Dapat diedit oleh Supervisor)
+                            <div style="margin-top:15px; background: #fffbeb; padding:12px; border:1px solid #fef3c7; border-radius:8px;">
+                                <span style="font-size:12px; font-weight:bold; color:#b45309;">🔎 Prosedur Pengecekan Laporan Finansial (Supervisor)</span>
+                                <textarea id="reviewNote_${ws.id}" rows="2" style="width:100%; font-size:12px; margin-top:5px; box-sizing:border-box; padding:5px; border-radius:4px; border:1px solid var(--border-color);" placeholder="Wajib tulis hasil temuan audit atau catatan revisi di sini...">${savedRevNote}</textarea>
+                                
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                                    <button onclick="processSupervisorReview('${ws.id}', 'revision')" class="btn-danger" style="font-size:11px; padding:6px;">🚨 Kembalikan / Notify Revisi</button>
+                                    <button onclick="processSupervisorReview('${ws.id}', 'approved')" class="btn-success" style="font-size:11px; padding:6px;">🎉 Approve & Finalize</button>
+                                </div>
                             </div>
-                            <button class="btn-danger" style="width:100%; font-size:11px; padding:6px; margin-top:4px;" 
+                            <button class="btn-danger" style="width:100%; font-size:11px; padding:6px; margin-top:8px;" 
                                 onclick="reopenClientWorkspace('${ws.id}')">🔓 Buka Paksa Kunci Berkas</button>
                         `;
                     } else {
-                        htmlContent += `
-                            <div style="margin-top:10px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
-                                ✓ Dokumen Dikunci (Closed)
-                            </div>
-                        `;
+                        if(ws.supervisorReview && ws.supervisorReview.status !== 'approved') {
+                            htmlContent += `
+                                <div style="margin-top:10px; background:#ef4444; color:#fff; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
+                                    ✓ Menunggu Pengecekan Lap. Keuangan oleh Supervisor
+                                </div>
+                            `;
+                        } else {
+                            htmlContent += `
+                                <div style="margin-top:10px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
+                                    ✓ Berkas Locked & Approved (Selesai Sempurna)
+                                </div>
+                            `;
+                        }
                     }
                 }
 
-                htmlContent += `</div>`;
                 card.innerHTML = htmlContent;
                 grid.appendChild(card);
             });
@@ -1408,6 +1891,7 @@
             const ws = appWorksheets.find(w => w.id === wsId);
             if (ws) {
                 ws.isClosed = false;
+                if(ws.supervisorReview) ws.supervisorReview.status = "none";
                 saveStateToLocalStorage();
                 renderMainWorkspace();
                 checkPeriodLockStatus();
@@ -1428,9 +1912,8 @@
             localStorage.setItem('idc_saved_font_v4', fontName);
         }
 
-        // Window Load Menggunakan Struktur Sinkronisasi Google Sheets Cloud Realtime
         window.onload = function() {
-            loadDataFromGoogleSheet(); // Tarik data dari Google Sheet saat aplikasi dijalankan
+            loadDataFromGoogleSheet(); 
             const savedTheme = localStorage.getItem('idc_saved_theme_v4') || 'corporate';
             const savedFont = localStorage.getItem('idc_saved_font_v4') || "'Inter', sans-serif";
             document.getElementById('themeSelector').value = savedTheme;
