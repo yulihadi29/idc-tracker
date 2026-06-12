@@ -441,7 +441,7 @@
                     <option value="2026-03">Maret 2026</option>
                     <option value="2026-04">April 2026</option>
                     <option value="2026-05">Mei 2026</option>
-                    <option value="2026-06" selected>Juni 2026</option>
+                    <option value="2026-06">Juni 2026</option>
                     <option value="2026-07">Juli 2026</option>
                     <option value="2026-08">Agustus 2026</option>
                     <option value="2026-09">September 2026</option>
@@ -499,7 +499,8 @@
         let panelViewMode = localStorage.getItem('idc_panel_view_mode_v4') || 'detail';
 
         let loggedInUser = null;
-        let activePeriod = "2026-06";
+        // Penyesuaian Utama: Ambil periode dari localStorage jika ada, default ke Juni 2026 jika kosong
+        let activePeriod = localStorage.getItem('idc_active_period_v4') || "2026-06";
 
         // Memuat semua data dari Google Sheets sewaktu aplikasi pertama kali dibuka
         async function loadDataFromGoogleSheet() {
@@ -543,6 +544,7 @@
             localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
             localStorage.setItem('idc_bypass_requests_v4', JSON.stringify(appBypassRequests));
             localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
+            localStorage.setItem('idc_active_period_v4', activePeriod);
 
             // Kirim muatan data penuh secara Asynchronous ke Google Sheet API 
             let payload = {
@@ -696,6 +698,9 @@
             document.getElementById('sessionDisplay').innerText = `User: ${user.name} [${user.role.toUpperCase()}]`;
             document.getElementById('loginPassword').value = "";
 
+            // Sinkronisasi elemen select dengan activePeriod yang tersimpan di sistem
+            document.getElementById('currentPeriodFilter').value = activePeriod;
+
             if (user.role === "supervisor") {
                 document.getElementById('supervisorKpiPanel').style.display = "block";
                 document.getElementById('supervisorRequestsPanel').style.display = "block";
@@ -795,6 +800,8 @@
 
             document.getElementById('periodLockMessage').style.display = "none";
             activePeriod = targetPeriod;
+            // Menyimpan periode aktif baru ke localStorage agar tidak ter-reset
+            localStorage.setItem('idc_active_period_v4', activePeriod);
             generateMonthlyWorksheetsIfNotExist(activePeriod);
             renderMainWorkspace();
             checkPeriodLockStatus();
