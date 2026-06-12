@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integritas Data Consulting - Worksheet Bulanan v4.1</title>
+    <title>Integritas Data Consulting - Worksheet Bulanan v4.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Quicksand:wght@500;700&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -480,9 +480,10 @@
         // ================= CONTEXT HUBUNGAN KE GOOGLE SHEET =================
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC8-uyx66a9WWIvezH7G-yGpq0f7-hi0GojUepQU_fYpIA4efGyKpPSAXd7m6gqHIc/exec"; 
 
-        // Password inisiasi disesuaikan menggunakan SHA-256 Hash demi aspek keamanan tinggi (admin -> hashed)
+        // Password default disimpan dalam bentuk SHA-256 hash demi keamanan tingkat tinggi
+        // "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" adalah hash dari "admin"
         const initialUsers = [
-            { id: "supervisor_idc", name: "Supervisor Utama", role: "supervisor", password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" }, // hash dari "admin"
+            { id: "supervisor_idc", name: "Supervisor Utama", role: "supervisor", password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" },
             { id: "pic_budi", name: "Budi Hermawan", role: "pic", password: "" },
             { id: "pic_siti", name: "Siti Rahma", role: "pic", password: "" }
         ];
@@ -502,13 +503,13 @@
         let loggedInUser = null;
         let activePeriod = localStorage.getItem('idc_active_period_v4') || "2026-06";
 
-        // Fungsi Helper Pembentuk Enkripsi SHA-256 aman (Login & Pembaruan Sandi)
-        async function hashPassword(password) {
-            if (!password) return "";
-            const msgBuffer = new TextEncoder().encode(password);
+        // Fungsi Kriptografi Pembantu SHA-256 Sisi Klien (Secara sinkron / mandiri)
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);                    
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
         }
 
         // Memuat semua data dari Google Sheets sewaktu aplikasi pertama kali dibuka
@@ -544,6 +545,7 @@
             }
         }
 
+        // Fungsi Sinkronisasi Utama: Kirim & Simpan Data Langsung Ke Google Sheets Cloud
         async function saveStateToLocalStorage() {
             localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
             localStorage.setItem('idc_clients_v4', JSON.stringify(appClients));
@@ -654,34 +656,55 @@
             }
         }
 
-        // Fitur Keamanan Ditingkatkan: Reset Password wajib verifikasi Otentikasi Supervisor
+        // Fitur Lupa / Reset Password dengan validasi berlapis (Mencegah sabotase user lain)
         async function triggerForgotPassword() {
             const userId = document.getElementById('loginUserSelect').value;
             const user = appUsers.find(u => u.id === userId);
             if (!user) return alert("Pilih user terlebih dahulu.");
 
-            const supervisorInput = prompt(`Keamanan Sistem Terproteksi!\nUntuk mereset password akun [${user.name}], silakan masukkan Password Akun Supervisor Utama:`);
-            if (supervisorInput === null) return;
+            // Dapatkan entitas Supervisor Utama untuk proses override otorisasi master
+            const superUser = appUsers.find(u => u.role === 'supervisor');
 
-            const hashedSubInput = await hashPassword(supervisorInput);
-            const supervisorUser = appUsers.find(u => u.role === 'supervisor');
+            const confirmation = confirm(`Apakah Anda ingin mengatur ulang (reset) password untuk akun: ${user.name}?`);
+            if (confirmation) {
+                // Jika user sudah memiliki password, harus divalidasi dengan kredensial lama / supervisor
+                if (user.password) {
+                    const authMethod = prompt(`Otorisasi Diperlukan!\nKetik "1" jika tahu Password Lama Anda.\nKetik "2" jika ingin diverifikasi langsung oleh Supervisor Utama.`);
+                    
+                    if (authMethod === "1") {
+                        const oldPass = prompt("Masukkan Password Lama Anda:");
+                        if (!oldPass) return;
+                        const oldHash = await sha256(oldPass.trim());
+                        if (oldHash !== user.password) {
+                            alert("Verifikasi Gagal! Password lama tidak cocok.");
+                            return;
+                        }
+                    } else if (authMethod === "2") {
+                        const superPass = prompt("Otorisasi Master: Masukkan Password SUPERVISOR UTAMA:");
+                        if (!superPass) return;
+                        const superHash = await sha256(superPass.trim());
+                        if (superHash !== superUser.password) {
+                            alert("Verifikasi Gagal! Password Supervisor Utama salah.");
+                            return;
+                        }
+                    } else {
+                        alert("Pilihan dibatalkan.");
+                        return;
+                    }
+                }
 
-            if (supervisorUser && supervisorUser.password === hashedSubInput) {
-                const newPass = prompt(`Verifikasi Berhasil! Masukkan password baru untuk akun ${user.name}:`);
+                const newPass = prompt(`Masukkan password baru untuk akun ${user.name}:`);
                 if (newPass && newPass.trim().length >= 4) {
                     const idx = appUsers.findIndex(u => u.id === userId);
-                    appUsers[idx].password = await hashPassword(newPass.trim());
+                    appUsers[idx].password = await sha256(newPass.trim());
                     saveStateToLocalStorage();
-                    alert("Password berhasil diperbarui dengan aman! Silakan mencobanya.");
+                    alert("Password berhasil diperbarui dengan aman! Silakan login.");
                 } else {
-                    alert("Reset dibatalkan atau password baru terlalu pendek (Min. 4 karakter).");
+                    alert("Reset dibatalkan atau password terlalu pendek (Min. 4 karakter).");
                 }
-            } else {
-                alert("Verifikasi Gagal! Password Supervisor Salah. Anda tidak berhak mengubah password akun ini.");
             }
         }
 
-        // Fitur Keamanan Ditingkatkan: Login diubah menggunakan Verifikasi Kriptografi Hash
         async function attemptLogin() {
             const userId = document.getElementById('loginUserSelect').value;
             const passwordInput = document.getElementById('loginPassword').value;
@@ -690,7 +713,8 @@
 
             if (!user) return;
 
-            const hashedInput = await hashPassword(passwordInput);
+            // Enkripsi input sandi pelapor sebelum disamakan dengan sistem basis data hash
+            const hashedInput = await sha256(passwordInput.trim());
 
             if (user.role === 'pic' && !user.password) {
                 if (passwordInput.trim().length < 4) {
@@ -699,7 +723,7 @@
                 }
                 appUsers[userIndex].password = hashedInput;
                 saveStateToLocalStorage();
-                alert("Password berhasil dienkripsi dan disimpan secara privat!");
+                alert("Password berhasil disimpan secara privat!");
             } else {
                 if (user.password !== hashedInput) {
                     alert("Kata sandi salah!");
@@ -1010,7 +1034,7 @@
             if (!name) return alert('Nama PIC tidak boleh kosong!');
             const newId = 'pic_' + Date.now();
             appUsers.push({ id: newId, name: name, role: 'pic', password: '' });
-            saveStateToLocalStorage();
+            saveStateChanged();
             document.getElementById('newPicName').value = '';
             renderSupervisorTables();
             buildSupervisorPicDropdownFilter();
@@ -1142,7 +1166,7 @@
             renderMainWorkspace();
         }
 
-        // Fitur Diperbarui: Proses submit closing PIC otomatis mengubah status master klien di akun Supervisor
+        // KETENTUAN UTAMA: Jika PIC menutup pekerjaan klien, status master klien otomatis ter-update menjadi non-aktif
         function submitClosingClient(wsId) {
             const ws = appWorksheets.find(w => w.id === wsId);
             if (!ws) return;
@@ -1165,22 +1189,19 @@
                 return;
             }
 
-            // Kunci berkas progres bulanan
             ws.isClosed = true;
 
-            // KETENTUAN BARU: Otomatis merubah status master klien terkait menjadi Non-Aktif (🔴) di panel Supervisor
+            // OTOMATISASI: Cari Klien di Master dan ubah status menjadi Non-Aktif (Close)
             const masterClientIdx = appClients.findIndex(c => c.id === ws.clientId);
             if (masterClientIdx > -1) {
                 appClients[masterClientIdx].isActive = false;
             }
 
             saveStateToLocalStorage();
-            if (loggedInUser && loggedInUser.role === 'supervisor') {
-                renderSupervisorTables();
-            }
+            renderSupervisorTables();
             renderMainWorkspace();
             checkPeriodLockStatus();
-            alert(`Progress untuk ${ws.clientName} resmi CLOSED. Status Klien di tabel master Supervisor otomatis diperbarui menjadi Non-Aktif.`);
+            alert(`Progress untuk ${ws.clientName} resmi CLOSED & Status Master Klien otomatis dinonaktifkan.`);
         }
 
         function renderMainWorkspace() {
@@ -1355,7 +1376,7 @@
                                         <option value="Permintaan Keterangan Dokumen" ${task.progressDetail === 'Permintaan Keterangan Dokumen' ? 'selected':''}>🟡 Permintaan Keterangan Dokumen</option>
                                         <option value="Penyusunan Draft Dokumen Tanggapan" ${task.progressDetail === 'Penyusunan Draft Dokumen Tanggapan' ? 'selected':''}>🔵 Penyusunan Draft Dokumen Tanggapan</option>
                                         <option value="Proses Pengajuan Ke KPP" ${task.progressDetail === 'Proses Pengajuan Ke KPP' ? 'selected':''}>🟠 Proses Pengajuan Ke KPP</option>
-                                        <option value="Selesai Sempurna / SPH Terbit" ${task.progressDetail === 'Selesai Sempurna / SPH Terbit' ? 'selected':''}>🟢 Selesai Sempurna</option>
+                                        <option value="Selesai Sempursa / SPH Terbit" ${task.progressDetail === 'Selesai Sempursa / SPH Terbit' ? 'selected':''}>🟢 Selesai Sempurna</option>
                                     </select>
                                 </div>
                             `;
@@ -1429,13 +1450,13 @@
             });
         }
 
-        // Fitur Diperbarui: Jika supervisor membuka kembali kunci berkas, status master klien otomatis balik Aktif (🟢)
+        // Jika Supervisor membuka kembali berkas, status master klien otomatis dikembalikan menjadi Aktif
         function reopenClientWorkspace(wsId) {
             const ws = appWorksheets.find(w => w.id === wsId);
             if (ws) {
                 ws.isClosed = false;
 
-                // Kembalikan status master klien menjadi Aktif kembali
+                // Kembalikan status klien di master list menjadi Aktif
                 const masterClientIdx = appClients.findIndex(c => c.id === ws.clientId);
                 if (masterClientIdx > -1) {
                     appClients[masterClientIdx].isActive = true;
@@ -1445,7 +1466,7 @@
                 renderSupervisorTables();
                 renderMainWorkspace();
                 checkPeriodLockStatus();
-                alert(`Berkas ${ws.clientName} berhasil dibuka kembali. Status Klien di tabel master Supervisor dikembalikan menjadi Aktif.`);
+                alert(`Berkas ${ws.clientName} berhasil dibuka kembali & Master Klien diaktifkan.`);
             }
         }
 
