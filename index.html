@@ -415,7 +415,8 @@
                         
                         <div style="background: var(--bg-main); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
                             <span style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 6px;">Cakupan Jasa Yang Dibutuhkan Klien:</span>
-                            <label style="font-size: 13px; margin-right: 12px; cursor: pointer;"><input type="checkbox" id="serviceAccounting" checked style="margin-right: 4px;"> Akuntansi</label> <label style="font-size: 13px; margin-right: 12px; cursor: pointer;"><input type="checkbox" id="serviceTax" checked style="margin-right: 4px;"> Pajak</label>
+                            <label style="font-size: 13px; margin-right: 12px; cursor: pointer;"><input type="checkbox" id="serviceAccounting" checked style="margin-right: 4px;"> Akuntansi</label>
+                            <label style="font-size: 13px; margin-right: 12px; cursor: pointer;"><input type="checkbox" id="serviceTax" checked style="margin-right: 4px;"> Pajak</label>
                             <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" id="serviceSpecial" style="margin-right: 4px;"> Special Case</label>
                         </div>
 
@@ -498,6 +499,7 @@
         let panelViewMode = localStorage.getItem('idc_panel_view_mode_v4') || 'detail';
 
         let loggedInUser = null;
+        // Penyesuaian Utama: Ambil periode dari localStorage jika ada, default ke Juni 2026 jika kosong
         let activePeriod = localStorage.getItem('idc_active_period_v4') || "2026-06";
 
         // Memuat semua data dari Google Sheets sewaktu aplikasi pertama kali dibuka
@@ -512,9 +514,6 @@
                 let data = await response.json();
 
                 appUsers = data.users && data.users.length > 0 ? data.users : initialUsers;
-                
-                // BUG BERHASIL DIPERBAIKI: Baris pemaksaan password supervisor 'supervisor123' -> 'admin' dihapus agar password yang terdaftar secara sah di Google Sheet dapat langsung digunakan.
-                
                 appClients = data.clients && data.clients.length > 0 ? data.clients : initialClients;
                 appWorksheets = data.worksheets || [];
                 appBypassRequests = data.bypassRequests || [];
@@ -527,8 +526,8 @@
                 console.log("Sinkronisasi Cloud Google Sheet Berhasil!");
             } catch (err) {
                 console.error("Gagal terhubung ke Cloud Sheet. Menggunakan cadangan lokal...", err);
+                // Fallback otomatis jika internet offline atau script belum dideploy
                 appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
-                
                 appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
                 appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
                 appBypassRequests = JSON.parse(localStorage.getItem('idc_bypass_requests_v4')) || [];
@@ -539,6 +538,7 @@
 
         // Fungsi Sinkronisasi Utama: Kirim & Simpan Data Langsung Ke Google Sheets Cloud
         async function saveStateToLocalStorage() {
+            // Tetap simpan di localStorage sebagai cadangan offline kualifikasi client-side
             localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
             localStorage.setItem('idc_clients_v4', JSON.stringify(appClients));
             localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
@@ -546,6 +546,7 @@
             localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
             localStorage.setItem('idc_active_period_v4', activePeriod);
 
+            // Kirim muatan data penuh secara Asynchronous ke Google Sheet API 
             let payload = {
                 action: "saveAll",
                 users: appUsers,
@@ -558,7 +559,7 @@
             try {
                 await fetch(WEB_APP_URL, {
                     method: "POST",
-                    mode: "no-cors",
+                    mode: "no-cors", // Mencegah Error CORS lintas domain browser
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
@@ -568,6 +569,7 @@
             }
         }
 
+        // Matikan fungsi pemantau storage bawaan lokal agar tidak berbenturan dengan siklus cloud fetch
         window.addEventListener('storage', (e) => { return; });
 
         function generateMonthlyWorksheetsIfNotExist(period) {
@@ -614,7 +616,6 @@
                     stateChanged = true;
                 }
             });
-
             if (stateChanged) {
                 saveStateToLocalStorage();
             }
@@ -627,6 +628,7 @@
             appUsers.forEach(u => {
                 select.innerHTML += `<option value="${u.id}">${u.name} (${u.role.toUpperCase()})</option>`;
             });
+            
             if (currentSelectedValue && appUsers.some(u => u.id === currentSelectedValue)) {
                 select.value = currentSelectedValue;
             }
@@ -649,26 +651,20 @@
         }
 
         function triggerForgotPassword() {
-            alert("Demi keamanan data, pengaturan ulang (reset) sandi akun PIC hanya dapat diproses dan dilakukan oleh Supervisor melalui Panel Kontrol Manajemen Tim!");
-        }
+            const userId = document.getElementById('loginUserSelect').value;
+            const user = appUsers.find(u => u.id === userId);
+            if (!user) return alert("Pilih user terlebih dahulu.");
 
-        function resetPicPasswordBySupervisor(picId) {
-            if (!loggedInUser || loggedInUser.role !== 'supervisor') {
-                alert("Akses ditolak! Hanya supervisor yang berwenang mereset password.");
-                return;
-            }
-            const picUser = appUsers.find(u => u.id === picId);
-            if (!picUser) return alert("User tidak ditemukan.");
-
-            const newPass = prompt(`[SUPERVISOR CONTROL] Masukkan kata sandi baru untuk PIC ${picUser.name}:`);
-            if (newPass !== null) {
-                if (newPass.trim().length >= 4) {
-                    picUser.password = newPass.trim();
+            const confirmation = confirm(`Apakah Anda ingin mengatur ulang (reset) password untuk akun: ${user.name}?`);
+            if (confirmation) {
+                const newPass = prompt(`Masukkan password baru untuk akun ${user.name}:`);
+                if (newPass && newPass.trim().length >= 4) {
+                    const idx = appUsers.findIndex(u => u.id === userId);
+                    appUsers[idx].password = newPass.trim();
                     saveStateToLocalStorage();
-                    renderSupervisorTables();
-                    alert(`Password untuk akun ${picUser.name} berhasil diubah!`);
+                    alert("Password berhasil diperbarui! Silakan login.");
                 } else {
-                    alert("Gagal! Kata sandi baru minimal 4 karakter.");
+                    alert("Reset dibatalkan atau password terlalu pendek (Min. 4 karakter).");
                 }
             }
         }
@@ -701,6 +697,8 @@
             document.getElementById('dashboardPage').style.display = "block";
             document.getElementById('sessionDisplay').innerText = `User: ${user.name} [${user.role.toUpperCase()}]`;
             document.getElementById('loginPassword').value = "";
+
+            // Sinkronisasi elemen select dengan activePeriod yang tersimpan di sistem
             document.getElementById('currentPeriodFilter').value = activePeriod;
 
             if (user.role === "supervisor") {
@@ -746,16 +744,675 @@
 
         function checkPeriodLockStatus() {
             if (!loggedInUser) return;
+            
             if (loggedInUser.role === 'supervisor') {
                 document.getElementById('periodLockMessage').style.display = "none";
                 document.getElementById('btnRequestBypass').style.display = "none";
                 return;
             }
+
             const periods = Array.from(document.querySelectorAll('#currentPeriodFilter option')).map(o => o.value);
             const activeIdx = periods.indexOf(activePeriod);
             
             let isAnyFutureLocked = false;
-            // Evaluasi penguncian atau bypass di sini jika diperlukan...
+            
+            for (let i = 0; i < periods.length; i++) {
+                if (i > activeIdx) {
+                    let currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod && ws.picId === loggedInUser.id);
+                    let hasUnclosed = currentPeriodSheets.some(ws => !ws.isClosed);
+                    
+                    let isBypassed = approvedBypasses[loggedInUser.id] && approvedBypasses[loggedInUser.id].includes(periods[i]);
+
+                    if (hasUnclosed && !isBypassed) {
+                        isAnyFutureLocked = true;
+                    }
+                }
+            }
+
+            if (isAnyFutureLocked) {
+                document.getElementById('btnRequestBypass').style.display = "inline-block";
+            } else {
+                document.getElementById('periodLockMessage').style.display = "none";
+                document.getElementById('btnRequestBypass').style.display = "none";
+            }
+        }
+
+        function changeSystemPeriod(targetPeriod) {
+            if (!loggedInUser) return;
+
+            const periods = Array.from(document.querySelectorAll('#currentPeriodFilter option')).map(o => o.value);
+            const activeIdx = periods.indexOf(activePeriod);
+            const targetIdx = periods.indexOf(targetPeriod);
+
+            if (loggedInUser.role === 'pic' && targetIdx > activeIdx) {
+                let currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod && ws.picId === loggedInUser.id);
+                let hasUnclosed = currentPeriodSheets.some(ws => !ws.isClosed);
+                
+                let isBypassed = approvedBypasses[loggedInUser.id] && approvedBypasses[loggedInUser.id].includes(targetPeriod);
+
+                if (hasUnclosed && !isBypassed) {
+                    document.getElementById('periodLockMessage').style.display = "inline";
+                    document.getElementById('currentPeriodFilter').value = activePeriod;
+                    checkPeriodLockStatus();
+                    return;
+                }
+            }
+
+            document.getElementById('periodLockMessage').style.display = "none";
+            activePeriod = targetPeriod;
+            // Menyimpan periode aktif baru ke localStorage agar tidak ter-reset
+            localStorage.setItem('idc_active_period_v4', activePeriod);
+            generateMonthlyWorksheetsIfNotExist(activePeriod);
+            renderMainWorkspace();
+            checkPeriodLockStatus();
+        }
+
+        function openBypassRequestModal() {
+            const periods = Array.from(document.querySelectorAll('#currentPeriodFilter option')).map(o => o.value);
+            const activeIdx = periods.indexOf(activePeriod);
+            
+            if (activeIdx === periods.length - 1) {
+                return alert("Anda berada di penghujung periode sistem.");
+            }
+
+            const nextPeriodTarget = periods[activeIdx + 1];
+            const reason = prompt(`Klien Anda di bulan ${activePeriod} belum diclose semuanya.\n\nKirim permohonan ke supervisor agar diizinkan lanjut ke periode [${nextPeriodTarget}]?\nTuliskan alasan/kendala utama Anda:`);
+            
+            if (reason === null) return;
+            if (!reason.trim()) return alert("Alasan permohonan wajib diisi agar diproses supervisor!");
+
+            const reqExists = appBypassRequests.some(r => r.picId === loggedInUser.id && r.targetPeriod === nextPeriodTarget && r.status === "pending");
+            if (reqExists) return alert("Anda sudah mengirimkan permohonan untuk periode tersebut. Mohon tunggu verifikasi Supervisor.");
+
+            appBypassRequests.push({
+                id: 'req_' + Date.now(),
+                picId: loggedInUser.id,
+                picName: loggedInUser.name,
+                sourcePeriod: activePeriod,
+                targetPeriod: nextPeriodTarget,
+                reason: reason.trim(),
+                status: "pending"
+            });
+
+            saveStateToLocalStorage();
+            alert("Permohonan berhasil dikirim ke dashboard Supervisor Utama!");
+        }
+
+        function renderSupervisorRequests() {
+            const tbody = document.querySelector('#supervisorRequestsTable tbody');
+            tbody.innerHTML = '';
+            
+            const pendings = appBypassRequests.filter(r => r.status === "pending");
+            if (pendings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); font-style:italic;">Tidak ada permohonan masuk saat ini.</td></tr>`;
+                return;
+            }
+
+            pendings.forEach(req => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${req.picName}</strong></td>
+                        <td><span class="badge-late" style="background:#475569;">${req.sourcePeriod}</span></td>
+                        <td><span class="badge-late" style="background:#16a34a;">${req.targetPeriod}</span></td>
+                        <td><i style="font-size:13px; color:var(--text-main);">"${req.reason}"</i></td>
+                        <td>
+                            <button onclick="respondBypassRequest('${req.id}', true)" class="btn-success" style="padding:4px 8px; font-size:11px; margin-right:5px;">Setujui</button>
+                            <button onclick="respondBypassRequest('${req.id}', false)" class="btn-danger" style="padding:4px 8px; font-size:11px;">Tolak</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function respondBypassRequest(reqId, isApproved) {
+            const reqIdx = appBypassRequests.findIndex(r => r.id === reqId);
+            if (reqIdx === -1) return;
+
+            const req = appBypassRequests[reqIdx];
+            if (isApproved) {
+                req.status = "approved";
+                if (!approvedBypasses[req.picId]) {
+                    approvedBypasses[req.picId] = [];
+                }
+                if (!approvedBypasses[req.picId].includes(req.targetPeriod)) {
+                    approvedBypasses[req.picId].push(req.targetPeriod);
+                }
+                alert(`Permohonan ${req.picName} dikabulkan. PIC sekarang dapat mengakses periode ${req.targetPeriod}.`);
+            } else {
+                req.status = "rejected";
+                alert(`Permohonan ${req.picName} resmi ditolak.`);
+            }
+
+            saveStateToLocalStorage();
+            renderSupervisorTables();
+            renderSupervisorRequests();
+            renderMainWorkspace();
+        }
+
+        function togglePanelViewMode(mode) {
+            panelViewMode = mode;
+            localStorage.setItem('idc_panel_view_mode_v4', mode);
+            
+            const formGrid = document.getElementById('panelFormWorkspaceGrid');
+            const divider = document.getElementById('panelDividerLine');
+            
+            if (mode === 'summary') {
+                formGrid.style.display = 'none';
+                divider.style.display = 'none';
+            } else {
+                formGrid.style.display = 'grid';
+                divider.style.display = 'block';
+            }
+        }
+
+        function renderSupervisorTables() {
+            const picBody = document.querySelector('#picManagementTable tbody');
+            picBody.innerHTML = '';
+            appUsers.filter(u => u.role === 'pic').forEach(p => {
+                picBody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td>${p.password ? '✅ Terkunci' : '⏳ Belum Set'}</td>
+                        <td><button onclick="deletePic('${p.id}')" class="btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button></td>
+                    </tr>
+                `;
+            });
+
+            const picSelect = document.getElementById('newClientPicSelect');
+            picSelect.innerHTML = `<option value="unassigned">-- Biarkan Unassigned --</option>`;
+            appUsers.filter(u => u.role === 'pic').forEach(p => {
+                picSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            });
+
+            const clientBody = document.querySelector('#masterClientTable tbody');
+            clientBody.innerHTML = '';
+            appClients.forEach((c, idx) => {
+                let s = c.services || { accounting: true, tax: true, special: false };
+                let activeServicesLabels = [];
+                if (s.accounting) activeServicesLabels.push("Akuntansi");
+                if (s.tax) activeServicesLabels.push("Pajak");
+                if (s.special) activeServicesLabels.push("SpecialCase");
+
+                let picDropdownOptions = `<option value="unassigned" ${c.pic === 'unassigned' ? 'selected' : ''}>Unassigned</option>`;
+                appUsers.filter(u => u.role === 'pic').forEach(p => {
+                    picDropdownOptions += `<option value="${p.id}" ${c.pic === p.id ? 'selected' : ''}>${p.name}</option>`;
+                });
+
+                let statusDropdown = `
+                    <select onchange="updateMasterClientStatus('${c.id}', this.value)" style="font-size:12px; padding:3px; border-radius:4px;">
+                        <option value="true" ${c.isActive !== false ? 'selected' : ''}>🟢 Aktif</option>
+                        <option value="false" ${c.isActive === false ? 'selected' : ''}>🔴 Non-Aktif</option>
+                    </select>
+                `;
+
+                clientBody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.name}</strong></td>
+                        <td><span class="badge-client-type ${c.type === 'Perorangan' ? 'badge-perorangan' : 'badge-badan'}">${c.type || 'Badan'}</span></td>
+                        <td>
+                            <select onchange="updateMasterClientPic('${c.id}', this.value)" style="font-size:12px; padding:3px; border-radius:4px;">
+                                ${picDropdownOptions}
+                            </select>
+                        </td>
+                        <td>${statusDropdown}</td>
+                        <td><span style="font-size:11px; font-weight:bold; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${activeServicesLabels.join(', ')}</span></td>
+                        <td><button onclick="deleteClient('${c.id}')" class="btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateMasterClientPic(clientId, newPicId) {
+            const idx = appClients.findIndex(c => c.id === clientId);
+            if (idx > -1) {
+                appClients[idx].pic = newPicId;
+                
+                appWorksheets.forEach((ws, wsIdx) => {
+                    if (ws.clientId === clientId && ws.period === activePeriod) {
+                        appWorksheets[wsIdx].picId = newPicId;
+                    }
+                });
+                
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                renderMainWorkspace();
+                alert(`PIC Utama untuk ${appClients[idx].name} berhasil diubah.`);
+            }
+        }
+
+        function updateMasterClientStatus(clientId, statusStr) {
+            const idx = appClients.findIndex(c => c.id === clientId);
+            if (idx > -1) {
+                appClients[idx].isActive = (statusStr === "true");
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                generateMonthlyWorksheetsIfNotExist(activePeriod);
+                renderMainWorkspace();
+                alert(`Status Klien ${appClients[idx].name} diubah menjadi ${appClients[idx].isActive ? 'AKTIF' : 'NON-AKTIF'}.`);
+            }
+        }
+
+        function registerNewPic() {
+            const name = document.getElementById('newPicName').value.trim();
+            if (!name) return alert('Nama PIC tidak boleh kosong!');
+            const newId = 'pic_' + Date.now();
+            appUsers.push({ id: newId, name: name, role: 'pic', password: '' });
+            saveStateToLocalStorage();
+            document.getElementById('newPicName').value = '';
+            renderSupervisorTables();
+            buildSupervisorPicDropdownFilter();
+            initLoginInterface();
+        }
+
+        function deletePic(picId) {
+            if (confirm('Hapus akun PIC ini dari sistem database?')) {
+                appUsers = appUsers.filter(u => u.id !== picId);
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                buildSupervisorPicDropdownFilter();
+                initLoginInterface();
+            }
+        }
+
+        function registerNewClient() {
+            const name = document.getElementById('newClientName').value.trim();
+            const type = document.getElementById('newClientTypeSelect').value;
+            const picId = document.getElementById('newClientPicSelect').value;
+            
+            const accChecked = document.getElementById('serviceAccounting').checked;
+            const taxChecked = document.getElementById('serviceTax').checked;
+            const specChecked = document.getElementById('serviceSpecial').checked;
+
+            if (!name || !picId) return alert('Data registrasi klien tidak lengkap!');
+            if (!accChecked && !taxChecked && !specChecked) return alert('Gagal! Pilih minimal satu cakupan jasa yang dibutuhkan klien.');
+            
+            const newClientId = 'cli_' + Date.now();
+            appClients.push({ 
+                id: newClientId, 
+                name: name, 
+                type: type,
+                pic: picId,
+                isActive: true,
+                services: {
+                    accounting: accChecked,
+                    tax: taxChecked,
+                    special: specChecked
+                }
+            });
+            saveStateToLocalStorage();
+            
+            document.getElementById('newClientName').value = '';
+            renderSupervisorTables();
+            generateMonthlyWorksheetsIfNotExist(activePeriod);
+            renderMainWorkspace();
+        }
+
+        function deleteClient(clientId) {
+            if (confirm('Hapus klien dari daftar tetap master?')) {
+                appClients = appClients.filter(c => c.id !== clientId);
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                renderMainWorkspace();
+            }
+        }
+
+        function deleteWorksheetCardDirectly(wsId, clientName) {
+            if (confirm(`Hapus berkas matriks progres berjalan untuk "${clientName}" pada periode ini?`)) {
+                appWorksheets = appWorksheets.filter(ws => ws.id !== wsId);
+                saveStateToLocalStorage();
+                renderMainWorkspace();
+            }
+        }
+
+        function updateClientPicDirectly(wsId, newPicId) {
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                appWorksheets[wsIndex].picId = newPicId;
+                saveStateToLocalStorage();
+                renderMainWorkspace();
+            }
+        }
+
+        function updateTaskCheckbox(wsId, taskId, isChecked) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                const tIndex = appWorksheets[wsIndex].tasks.findIndex(t => t.id === taskId);
+                if(tIndex > -1) {
+                    appWorksheets[wsIndex].tasks[tIndex].done = isChecked;
+                    appWorksheets[wsIndex].tasks[tIndex].completionDate = isChecked ? todayStr : "";
+                }
+            }
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+        }
+
+        function updateTaskDeadline(wsId, taskId, dateValue) {
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                const tIndex = appWorksheets[wsIndex].tasks.findIndex(t => t.id === taskId);
+                if(tIndex > -1) {
+                    appWorksheets[wsIndex].tasks[tIndex].deadline = dateValue;
+                }
+            }
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+        }
+
+        function updateSpecialProgressDetail(wsId, taskId, textValue) {
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                const tIndex = appWorksheets[wsIndex].tasks.findIndex(t => t.id === taskId);
+                if(tIndex > -1) {
+                    appWorksheets[wsIndex].tasks[tIndex].progressDetail = textValue;
+                }
+            }
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+        }
+
+        function updateExtraExplanation(wsId, textValue) {
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                appWorksheets[wsIndex].extraWorkExplanation = textValue;
+            }
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+        }
+
+        function updateAttachmentLink(wsId, type, urlValue) {
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                appWorksheets[wsIndex].attachments[type] = urlValue.trim();
+            }
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+        }
+
+        function submitClosingClient(wsId) {
+            const ws = appWorksheets.find(w => w.id === wsId);
+            if (!ws) return;
+
+            const coreTasks = ws.tasks.filter(t => t.category === 'accounting' || t.category === 'tax');
+            const allCoreDone = coreTasks.every(t => t.done);
+
+            if (!allCoreDone) {
+                alert("Gagal Closing! Semua tugas Akuntansi dan Pajak wajib dicentang selesai.");
+                return;
+            }
+
+            let s = ws.services || { accounting: true, tax: true, special: false };
+            if (s.accounting && !ws.attachments.accounting) {
+                alert("Gagal Closing! Lampiran link server Laporan Keuangan wajib diisi untuk layanan Akuntansi.");
+                return;
+            }
+            if (s.tax && !ws.attachments.tax) {
+                alert("Gagal Closing! Lampiran link server Laporan Ekualisasi Pajak wajib diisi untuk layanan Pajak.");
+                return;
+            }
+
+            ws.isClosed = true;
+            saveStateToLocalStorage();
+            renderMainWorkspace();
+            checkPeriodLockStatus();
+            alert(`Progress untuk ${ws.clientName} resmi CLOSED & dikunci.`);
+        }
+
+        function renderMainWorkspace() {
+            const grid = document.getElementById('worksheetMainGrid');
+            const kpiGrid = document.getElementById('kpiDashboardGrid');
+            
+            grid.innerHTML = '';
+            kpiGrid.innerHTML = '';
+
+            const currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod);
+
+            if (loggedInUser && loggedInUser.role === 'supervisor') {
+                kpiGrid.innerHTML = '';
+                appUsers.filter(u => u.role === 'pic').forEach(pic => {
+                    const picSheets = currentPeriodSheets.filter(ws => ws.picId === pic.id);
+                    const workload = picSheets.length;
+                    
+                    let totalCoreTasks = 0;
+                    let finishedCoreTasks = 0;
+                    let onTimeCoreTasks = 0;
+
+                    picSheets.forEach(ws => {
+                        ws.tasks.forEach(t => {
+                            if (t.category === 'accounting' || t.category === 'tax') {
+                                totalCoreTasks++;
+                                if (t.done) {
+                                    finishedCoreTasks++;
+                                    if (t.completionDate && t.completionDate <= t.deadline) {
+                                        onTimeCoreTasks++;
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                    const progressPct = totalCoreTasks > 0 ? Math.round((finishedCoreTasks / totalCoreTasks) * 100) : 0;
+                    const timelinessPct = finishedCoreTasks > 0 ? Math.round((onTimeCoreTasks / finishedCoreTasks) * 100) : 100;
+
+                    kpiGrid.innerHTML += `
+                        <div class="kpi-card">
+                            <h4 style="margin:0 0 10px 0; color:var(--primary);">👤 ${pic.name}</h4>
+                            <div style="font-size:13px; line-height: 1.6;">
+                                💼 Load Kerja: <strong>${workload} Klien</strong><br>
+                                📈 Progress Capaian: <strong>${progressPct}%</strong><br>
+                                ⏱️ Ketepatan Waktu: <strong>${timelinessPct}%</strong>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            let visibleSheets = currentPeriodSheets;
+            if (!loggedInUser) return;
+            
+            if (loggedInUser.role === 'supervisor') {
+                const selectedPicFilter = document.getElementById('supervisorPicSelectFilter').value;
+                if (selectedPicFilter !== 'ALL') {
+                    visibleSheets = visibleSheets.filter(ws => ws.picId === selectedPicFilter);
+                }
+
+                const selectedTypeFilter = document.getElementById('supervisorClientTypeSelectFilter').value;
+                if (selectedTypeFilter !== 'ALL') {
+                    visibleSheets = visibleSheets.filter(ws => (ws.clientType || 'Badan') === selectedTypeFilter);
+                }
+            } else {
+                visibleSheets = currentPeriodSheets.filter(ws => ws.picId === loggedInUser.id);
+            }
+
+            if (visibleSheets.length === 0) {
+                grid.innerHTML = `<p style="color:var(--text-muted); font-style:italic; grid-column: 1/-1; text-align:center; padding:30px;">Tidak ada progress klien yang cocok dengan filter aktif.</p>`;
+                return;
+            }
+
+            visibleSheets.forEach(ws => {
+                let services = ws.services || { accounting: true, tax: true, special: false };
+                const coreTasks = ws.tasks.filter(t => t.category === 'accounting' || t.category === 'tax');
+                const completedCore = coreTasks.filter(t => t.done).length;
+                const progressPercentage = coreTasks.length > 0 ? Math.round((completedCore / coreTasks.length) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = `client-card ${ws.isClosed ? 'is-closed' : ''}`;
+
+                let picSelectionWidget = '';
+                let deleteUnassignedButton = '';
+                
+                if (loggedInUser.role === 'supervisor') {
+                    picSelectionWidget = `<select style="font-size:11px; font-weight:bold; padding:3px; border-radius:4px;" onchange="updateClientPicDirectly('${ws.id}', this.value)">`;
+                    picSelectionWidget += `<option value="unassigned" ${ws.picId === 'unassigned' ? 'selected' : ''}>Reviewer: Unassigned</option>`;
+                    appUsers.filter(u => u.role === 'pic').forEach(p => {
+                        picSelectionWidget += `<option value="${p.id}" ${ws.picId === p.id ? 'selected' : ''}>Reviewer: ${p.name}</option>`;
+                    });
+                    picSelectionWidget += `</select>`;
+
+                    if (ws.picId === 'unassigned') {
+                        deleteUnassignedButton = `
+                            <button class="btn-danger" style="padding: 3px 8px; font-size: 11px; margin-left: 10px;" 
+                                onclick="deleteWorksheetCardDirectly('${ws.id}', '${ws.clientName}')">🗑️ Hapus Klien</button>
+                        `;
+                    }
+                } else {
+                    const picNameObj = appUsers.find(u => u.id === ws.picId) || { name: 'Unassigned' };
+                    picSelectionWidget = `<div style="font-size:12px; font-weight:500; color:var(--text-muted);">Reviewer: <strong>${picNameObj.name}</strong></div>`;
+                }
+
+                let fieldsDisabled = ws.isClosed;
+                if (loggedInUser.role === 'supervisor') {
+                    fieldsDisabled = false;
+                }
+
+                let cType = ws.clientType || "Badan";
+                let typeBadge = `<span class="badge-client-type ${cType === 'Perorangan' ? 'badge-perorangan' : 'badge-badan'}">${cType}</span>`;
+
+                let htmlContent = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+                        <div class="client-title" style="margin:0;">${ws.clientName} ${typeBadge}</div>
+                        ${deleteUnassignedButton}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:bold;">
+                            Status Berkas: ${ws.isClosed ? '🟢 CLOSED' : '⏳ OPEN'}
+                        </div>
+                        ${picSelectionWidget}
+                    </div>
+
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
+                    </div>
+                    <div style="font-size: 11px; font-weight: bold; text-align: right; margin-bottom: 15px; color: var(--text-muted);">
+                        Progress (Akuntansi & Pajak): <span style="color:var(--success); font-size:13px;">${progressPercentage}%</span>
+                    </div>
+                `;
+
+                const categories = [
+                    { key: "accounting", title: "📂 Detail Pekerjaan Akuntansi", class: "acc-sec", active: services.accounting },
+                    { key: "tax", title: "⚖️ Detail Pekerjaan Pajak", class: "tax-sec", active: services.tax },
+                    { key: "special", title: "⚡ Detail Pekerjaan Special Case (Advisory)", class: "spec-sec", active: services.special }
+                ];
+
+                categories.forEach(cat => {
+                    if (!cat.active) return;
+
+                    htmlContent += `<div class="job-section ${cat.class}"><div class="job-title">${cat.title}</div>`;
+
+                    ws.tasks.filter(t => t.category === cat.key).forEach(task => {
+                        const isOverdue = (!task.done && new Date().toISOString().split('T')[0] > task.deadline);
+                        
+                        let mandatoryAlertSpan = '';
+                        if (cat.key === "special" && task.done && !ws.attachments.special) {
+                            mandatoryAlertSpan = `<span style="color:var(--danger); font-size:10px; font-weight:bold; margin-left:5px;">⚠️ Link Wajib Diisi!</span>`;
+                        }
+
+                        htmlContent += `
+                            <div class="task-row">
+                                <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                                    <input type="checkbox" ${task.done ? 'checked' : ''} ${fieldsDisabled ? 'disabled' : ''} 
+                                        onchange="updateTaskCheckbox('${ws.id}', '${task.id}', this.checked)">
+                                    <span class="${task.done ? 'text-done' : ''}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${task.name}</span>
+                                    ${isOverdue ? `<span class="badge-late">LATE</span>` : ''}
+                                    ${mandatoryAlertSpan}
+                                </div>
+                                <input type="date" value="${task.deadline}" ${fieldsDisabled ? 'disabled' : ''} 
+                                    onchange="updateTaskDeadline('${ws.id}', '${task.id}', this.value)" style="margin-left:5px;">
+                            </div>
+                        `;
+
+                        if (cat.key === "special") {
+                            htmlContent += `
+                                <div style="margin: -3px 0 10px 25px;">
+                                    <select class="special-detail-select" ${fieldsDisabled ? 'disabled' : ''} 
+                                        onchange="updateSpecialProgressDetail('${ws.id}', '${task.id}', this.value)">
+                                        <option value="Belum Dimulai" ${task.progressDetail === 'Belum Dimulai' ? 'selected':''}>🔴 Belum Dimulai</option>
+                                        <option value="Permintaan Keterangan Dokumen" ${task.progressDetail === 'Permintaan Keterangan Dokumen' ? 'selected':''}>🟡 Permintaan Keterangan Dokumen</option>
+                                        <option value="Penyusunan Draft Dokumen Tanggapan" ${task.progressDetail === 'Penyusunan Draft Dokumen Tanggapan' ? 'selected':''}>🔵 Penyusunan Draft Dokumen Tanggapan</option>
+                                        <option value="Proses Pengajuan Ke KPP" ${task.progressDetail === 'Proses Pengajuan Ke KPP' ? 'selected':''}>🟠 Proses Pengajuan Ke KPP</option>
+                                        <option value="Selesai Sempurna / SPH Terbit" ${task.progressDetail === 'Selesai Sempurna / SPH Terbit' ? 'selected':''}>🟢 Selesai Sempurna</option>
+                                    </select>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    htmlContent += `</div>`;
+                });
+
+                htmlContent += `
+                    <div class="extra-task-box">
+                        <label>📝 Ringkasan Hambatan / Tugas Tambahan Ad-Hoc:</label>
+                        <textarea rows="2" placeholder="Tuliskan jika ada kendala di luar scope utama..." 
+                            ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateExtraExplanation('${ws.id}', this.value)">${ws.extraWorkExplanation || ''}</textarea>
+                    </div>
+                `;
+
+                htmlContent += `
+                    <div class="attachment-zone">
+                        <span style="font-size:12px; font-weight:bold; color:var(--primary);">🔗 Tautan File Akses Server Gudang Data</span>
+                        
+                        ${services.accounting ? `
+                        <label>Link Laporan Keuangan (Wajib Akuntansi):</label>
+                        <input type="url" placeholder="https://server-idc.internal/accounting/file" 
+                            value="${ws.attachments.accounting || ''}" ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateAttachmentLink('${ws.id}', 'accounting', this.value)">
+                        ` : ''}
+
+                        ${services.tax ? `
+                        <label>Link Laporan Ekualisasi (Wajib Pajak):</label>
+                        <input type="url" placeholder="https://server-idc.internal/tax/file" 
+                            value="${ws.attachments.tax || ''}" ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateAttachmentLink('${ws.id}', 'tax', this.value)">
+                        ` : ''}
+
+                        ${services.special ? `
+                        <label>Link Surat Tanggapan (Wajib jika Special Case Dencentang):</label>
+                        <input type="url" placeholder="https://server-idc.internal/special/file" 
+                            value="${ws.attachments.special || ''}" ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateAttachmentLink('${ws.id}', 'special', this.value)">
+                        ` : ''}
+                `;
+
+                if (!ws.isClosed) {
+                    htmlContent += `
+                        <button class="btn-success" style="width:100%; font-size:12px; padding:8px; margin-top:12px;" 
+                            onclick="submitClosingClient('${ws.id}')">🔒 Ajukan Tutup Progress Bulanan</button>
+                    `;
+                } else {
+                    if (loggedInUser.role === 'supervisor') {
+                        htmlContent += `
+                            <div style="margin-top:10px; margin-bottom: 5px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
+                                ✓ Dokumen Closed (Dapat diedit oleh Supervisor)
+                            </div>
+                            <button class="btn-danger" style="width:100%; font-size:11px; padding:6px; margin-top:4px;" 
+                                onclick="reopenClientWorkspace('${ws.id}')">🔓 Buka Paksa Kunci Berkas</button>
+                        `;
+                    } else {
+                        htmlContent += `
+                            <div style="margin-top:10px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
+                                ✓ Dokumen Dikunci (Closed)
+                            </div>
+                        `;
+                    }
+                }
+
+                htmlContent += `</div>`;
+                card.innerHTML = htmlContent;
+                grid.appendChild(card);
+            });
+        }
+
+        function reopenClientWorkspace(wsId) {
+            const ws = appWorksheets.find(w => w.id === wsId);
+            if (ws) {
+                ws.isClosed = false;
+                saveStateToLocalStorage();
+                renderMainWorkspace();
+                checkPeriodLockStatus();
+                alert(`Berkas ${ws.clientName} berhasil dibuka kembali.`);
+            }
         }
 
         function applyTheme(themeName) {
@@ -771,8 +1428,9 @@
             localStorage.setItem('idc_saved_font_v4', fontName);
         }
 
+        // Window Load Menggunakan Struktur Sinkronisasi Google Sheets Cloud Realtime
         window.onload = function() {
-            loadDataFromGoogleSheet();
+            loadDataFromGoogleSheet(); // Tarik data dari Google Sheet saat aplikasi dijalankan
             const savedTheme = localStorage.getItem('idc_saved_theme_v4') || 'corporate';
             const savedFont = localStorage.getItem('idc_saved_font_v4') || "'Inter', sans-serif";
             document.getElementById('themeSelector').value = savedTheme;
