@@ -512,8 +512,8 @@
                 let response = await fetch(WEB_APP_URL);
                 let data = await response.json();
 
-                appUsers = data.users.length > 0 ? data.users : initialUsers;
-                appClients = data.clients.length > 0 ? data.clients : initialClients;
+                appUsers = data.users && data.users.length > 0 ? data.users : initialUsers;
+                appClients = data.clients && data.clients.length > 0 ? data.clients : initialClients;
                 appWorksheets = data.worksheets || [];
                 appBypassRequests = data.bypassRequests || [];
                 approvedBypasses = data.approvedBypasses || {};
@@ -571,6 +571,7 @@
         window.addEventListener('storage', (e) => { return; });
 
         function generateMonthlyWorksheetsIfNotExist(period) {
+            let stateChanged = false;
             appClients.forEach(client => {
                 if (client.isActive === false) return;
 
@@ -610,17 +611,25 @@
                         services: services,
                         tasks: taskList
                     });
+                    stateChanged = true;
                 }
             });
-            saveStateToLocalStorage();
+            if (stateChanged) {
+                saveStateToLocalStorage();
+            }
         }
 
         function initLoginInterface() {
             const select = document.getElementById('loginUserSelect');
+            const currentSelectedValue = select.value;
             select.innerHTML = '';
             appUsers.forEach(u => {
                 select.innerHTML += `<option value="${u.id}">${u.name} (${u.role.toUpperCase()})</option>`;
             });
+            
+            if (currentSelectedValue && appUsers.some(u => u.id === currentSelectedValue)) {
+                select.value = currentSelectedValue;
+            }
             handleUserSelectChange();
         }
 
@@ -1151,7 +1160,7 @@
 
             const currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod);
 
-            if (loggedInUser.role === 'supervisor') {
+            if (loggedInUser && loggedInUser.role === 'supervisor') {
                 kpiGrid.innerHTML = '';
                 appUsers.filter(u => u.role === 'pic').forEach(pic => {
                     const picSheets = currentPeriodSheets.filter(ws => ws.picId === pic.id);
@@ -1192,6 +1201,8 @@
             }
 
             let visibleSheets = currentPeriodSheets;
+            if (!loggedInUser) return;
+            
             if (loggedInUser.role === 'supervisor') {
                 const selectedPicFilter = document.getElementById('supervisorPicSelectFilter').value;
                 if (selectedPicFilter !== 'ALL') {
