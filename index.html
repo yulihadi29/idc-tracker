@@ -50,7 +50,6 @@
             --radius: 16px;
         }
 
-        /* TEMA TAMBAHAN BARU */
         body.theme-ocean-breeze {
             --bg-main: #f0f9ff;
             --bg-card: #ffffff;
@@ -306,7 +305,7 @@
             <span id="newAccountNotice" style="font-size: 11px; color: var(--warning); display:none; margin-top:5px;">✨ Akun baru terdaftar! Silakan ketik password baru Anda di atas untuk menguncinya pertama kali.</span>
         </div>
 
-        <button onclick="attemptLogin()" style="width: 100%;">Masuk Ke Sistem</button>
+        <button id="loginSubmitBtn" onclick="attemptLogin()" style="width: 100%;">Masuk Ke Sistem</button>
         <div style="text-align: center;">
             <button onclick="triggerForgotPassword()" class="btn-link">🔒 Lupa kata sandi / Reset Password?</button>
         </div>
@@ -468,7 +467,7 @@
 
                 <div id="supervisorPicFilterZone" style="display: none; align-items: center; gap: 10px;">
                     <span>🔍 <strong>Filter PIC (Review View):</strong></span>
-                    <select id="supervisorPicSelectFilter" onchange="renderMainWorkspace()" style="padding: 6px; border-radius: 6px; font-weight: 500 регулярно;"></select>
+                    <select id="supervisorPicSelectFilter" onchange="renderMainWorkspace()" style="padding: 6px; border-radius: 6px; font-weight: 500;"></select>
                 </div>
             </div>
         </div>
@@ -478,6 +477,9 @@
     </div>
 
     <script>
+        // ================= CONTEXT HUBUNGAN KE GOOGLE SHEET =================
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC8-uyx66a9WWIvezH7G-yGpq0f7-hi0GojUepQU_fYpIA4efGyKpPSAXd7m6gqHIc/exec"; 
+
         const initialUsers = [
             { id: "supervisor_idc", name: "Supervisor Utama", role: "supervisor", password: "admin" },
             { id: "pic_budi", name: "Budi Hermawan", role: "pic", password: "" },
@@ -489,45 +491,87 @@
             { id: "cli_2", name: "CV. Nusantara Agro Abadi", type: "Badan", pic: "pic_siti", isActive: true, services: { accounting: true, tax: true, special: true } }
         ];
 
-        let appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
-        let appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
-        let appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
-        let appBypassRequests = JSON.parse(localStorage.getItem('idc_bypass_requests_v4')) || [];
-        let approvedBypasses = JSON.parse(localStorage.getItem('idc_approved_bypasses_v4')) || {};
+        let appUsers = [];
+        let appClients = [];
+        let appWorksheets = [];
+        let appBypassRequests = [];
+        let approvedBypasses = {};
         let panelViewMode = localStorage.getItem('idc_panel_view_mode_v4') || 'detail';
 
         let loggedInUser = null;
         let activePeriod = "2026-06";
 
-        function saveStateToLocalStorage() {
-            localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
-            localStorage.setItem('idc_clients_v4', JSON.stringify(appClients));
-            localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
-            localStorage.setItem('idc_bypass_requests_v4', JSON.stringify(appBypassRequests));
-            localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
-        }
+        // Memuat semua data dari Google Sheets sewaktu aplikasi pertama kali dibuka
+        async function loadDataFromGoogleSheet() {
+            try {
+                const loginBtn = document.getElementById("loginSubmitBtn");
+                const originalText = loginBtn.innerText;
+                loginBtn.innerText = "Memuat Basis Data Cloud...";
+                loginBtn.disabled = true;
 
-        window.addEventListener('storage', (e) => {
-            if (['idc_worksheets_v4', 'idc_users_v4', 'idc_clients_v4', 'idc_bypass_requests_v4', 'idc_approved_bypasses_v4'].includes(e.key)) {
+                let response = await fetch(WEB_APP_URL);
+                let data = await response.json();
+
+                appUsers = data.users.length > 0 ? data.users : initialUsers;
+                appClients = data.clients.length > 0 ? data.clients : initialClients;
+                appWorksheets = data.worksheets || [];
+                appBypassRequests = data.bypassRequests || [];
+                approvedBypasses = data.approvedBypasses || {};
+
+                initLoginInterface();
+                
+                loginBtn.innerText = originalText;
+                loginBtn.disabled = false;
+                console.log("Sinkronisasi Cloud Google Sheet Berhasil!");
+            } catch (err) {
+                console.error("Gagal terhubung ke Cloud Sheet. Menggunakan cadangan lokal...", err);
+                // Fallback otomatis jika internet offline atau script belum dideploy
                 appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
                 appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
                 appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
                 appBypassRequests = JSON.parse(localStorage.getItem('idc_bypass_requests_v4')) || [];
                 approvedBypasses = JSON.parse(localStorage.getItem('idc_approved_bypasses_v4')) || {};
-                if (loggedInUser) {
-                    renderMainWorkspace();
-                    if (loggedInUser.role === 'supervisor') {
-                        renderSupervisorTables();
-                        renderSupervisorRequests();
-                    }
-                    checkPeriodLockStatus();
-                }
+                initLoginInterface();
             }
-        });
+        }
+
+        // Fungsi Sinkronisasi Utama: Kirim & Simpan Data Langsung Ke Google Sheets Cloud
+        async function saveStateToLocalStorage() {
+            // Tetap simpan di localStorage sebagai cadangan offline kualifikasi client-side
+            localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
+            localStorage.setItem('idc_clients_v4', JSON.stringify(appClients));
+            localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
+            localStorage.setItem('idc_bypass_requests_v4', JSON.stringify(appBypassRequests));
+            localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
+
+            // Kirim muatan data penuh secara Asynchronous ke Google Sheet API 
+            let payload = {
+                action: "saveAll",
+                users: appUsers,
+                clients: appClients,
+                worksheets: appWorksheets,
+                bypassRequests: appBypassRequests,
+                approvedBypasses: approvedBypasses
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: "POST",
+                    mode: "no-cors", // Mencegah Error CORS lintas domain browser
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                console.log("Data Berhasil Diperbarui di Google Sheets Server Cloud.");
+            } catch(e) {
+                console.warn("Gagal sinkronisasi otomatis ke cloud: ", e);
+            }
+        }
+
+        // Matikan fungsi pemantau storage bawaan lokal agar tidak berbenturan dengan siklus cloud fetch
+        window.addEventListener('storage', (e) => { return; });
 
         function generateMonthlyWorksheetsIfNotExist(period) {
             appClients.forEach(client => {
-                // Hanya roll otomatis untuk klien master yang berstatus AKTIF
                 if (client.isActive === false) return;
 
                 const sheetKey = `${client.id}_${period}`;
@@ -1108,6 +1152,7 @@
             const currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod);
 
             if (loggedInUser.role === 'supervisor') {
+                kpiGrid.innerHTML = '';
                 appUsers.filter(u => u.role === 'pic').forEach(pic => {
                     const picSheets = currentPeriodSheets.filter(ws => ws.picId === pic.id);
                     const workload = picSheets.length;
@@ -1365,8 +1410,9 @@
             localStorage.setItem('idc_saved_font_v4', fontName);
         }
 
+        // Window Load Menggunakan Struktur Sinkronisasi Google Sheets Cloud Realtime
         window.onload = function() {
-            initLoginInterface();
+            loadDataFromGoogleSheet(); // Tarik data dari Google Sheet saat aplikasi dijalankan
             const savedTheme = localStorage.getItem('idc_saved_theme_v4') || 'corporate';
             const savedFont = localStorage.getItem('idc_saved_font_v4') || "'Inter', sans-serif";
             document.getElementById('themeSelector').value = savedTheme;
