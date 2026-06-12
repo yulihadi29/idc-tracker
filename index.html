@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integritas Data Consulting - Worksheet Bulanan v4.0</title>
+    <title>Integritas Data Consulting - Worksheet Bulanan v4.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Quicksand:wght@500;700&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -480,8 +480,9 @@
         // ================= CONTEXT HUBUNGAN KE GOOGLE SHEET =================
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC8-uyx66a9WWIvezH7G-yGpq0f7-hi0GojUepQU_fYpIA4efGyKpPSAXd7m6gqHIc/exec"; 
 
+        // Password inisiasi disesuaikan menggunakan SHA-256 Hash demi aspek keamanan tinggi (admin -> hashed)
         const initialUsers = [
-            { id: "supervisor_idc", name: "Supervisor Utama", role: "supervisor", password: "admin" },
+            { id: "supervisor_idc", name: "Supervisor Utama", role: "supervisor", password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" }, // hash dari "admin"
             { id: "pic_budi", name: "Budi Hermawan", role: "pic", password: "" },
             { id: "pic_siti", name: "Siti Rahma", role: "pic", password: "" }
         ];
@@ -499,8 +500,16 @@
         let panelViewMode = localStorage.getItem('idc_panel_view_mode_v4') || 'detail';
 
         let loggedInUser = null;
-        // Penyesuaian Utama: Ambil periode dari localStorage jika ada, default ke Juni 2026 jika kosong
         let activePeriod = localStorage.getItem('idc_active_period_v4') || "2026-06";
+
+        // Fungsi Helper Pembentuk Enkripsi SHA-256 aman (Login & Pembaruan Sandi)
+        async function hashPassword(password) {
+            if (!password) return "";
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
         // Memuat semua data dari Google Sheets sewaktu aplikasi pertama kali dibuka
         async function loadDataFromGoogleSheet() {
@@ -526,7 +535,6 @@
                 console.log("Sinkronisasi Cloud Google Sheet Berhasil!");
             } catch (err) {
                 console.error("Gagal terhubung ke Cloud Sheet. Menggunakan cadangan lokal...", err);
-                // Fallback otomatis jika internet offline atau script belum dideploy
                 appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
                 appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
                 appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
@@ -536,9 +544,7 @@
             }
         }
 
-        // Fungsi Sinkronisasi Utama: Kirim & Simpan Data Langsung Ke Google Sheets Cloud
         async function saveStateToLocalStorage() {
-            // Tetap simpan di localStorage sebagai cadangan offline kualifikasi client-side
             localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
             localStorage.setItem('idc_clients_v4', JSON.stringify(appClients));
             localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
@@ -546,7 +552,6 @@
             localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
             localStorage.setItem('idc_active_period_v4', activePeriod);
 
-            // Kirim muatan data penuh secara Asynchronous ke Google Sheet API 
             let payload = {
                 action: "saveAll",
                 users: appUsers,
@@ -559,7 +564,7 @@
             try {
                 await fetch(WEB_APP_URL, {
                     method: "POST",
-                    mode: "no-cors", // Mencegah Error CORS lintas domain browser
+                    mode: "no-cors", 
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
@@ -569,7 +574,6 @@
             }
         }
 
-        // Matikan fungsi pemantau storage bawaan lokal agar tidak berbenturan dengan siklus cloud fetch
         window.addEventListener('storage', (e) => { return; });
 
         function generateMonthlyWorksheetsIfNotExist(period) {
@@ -650,26 +654,35 @@
             }
         }
 
-        function triggerForgotPassword() {
+        // Fitur Keamanan Ditingkatkan: Reset Password wajib verifikasi Otentikasi Supervisor
+        async function triggerForgotPassword() {
             const userId = document.getElementById('loginUserSelect').value;
             const user = appUsers.find(u => u.id === userId);
             if (!user) return alert("Pilih user terlebih dahulu.");
 
-            const confirmation = confirm(`Apakah Anda ingin mengatur ulang (reset) password untuk akun: ${user.name}?`);
-            if (confirmation) {
-                const newPass = prompt(`Masukkan password baru untuk akun ${user.name}:`);
+            const supervisorInput = prompt(`Keamanan Sistem Terproteksi!\nUntuk mereset password akun [${user.name}], silakan masukkan Password Akun Supervisor Utama:`);
+            if (supervisorInput === null) return;
+
+            const hashedSubInput = await hashPassword(supervisorInput);
+            const supervisorUser = appUsers.find(u => u.role === 'supervisor');
+
+            if (supervisorUser && supervisorUser.password === hashedSubInput) {
+                const newPass = prompt(`Verifikasi Berhasil! Masukkan password baru untuk akun ${user.name}:`);
                 if (newPass && newPass.trim().length >= 4) {
                     const idx = appUsers.findIndex(u => u.id === userId);
-                    appUsers[idx].password = newPass.trim();
+                    appUsers[idx].password = await hashPassword(newPass.trim());
                     saveStateToLocalStorage();
-                    alert("Password berhasil diperbarui! Silakan login.");
+                    alert("Password berhasil diperbarui dengan aman! Silakan mencobanya.");
                 } else {
-                    alert("Reset dibatalkan atau password terlalu pendek (Min. 4 karakter).");
+                    alert("Reset dibatalkan atau password baru terlalu pendek (Min. 4 karakter).");
                 }
+            } else {
+                alert("Verifikasi Gagal! Password Supervisor Salah. Anda tidak berhak mengubah password akun ini.");
             }
         }
 
-        function attemptLogin() {
+        // Fitur Keamanan Ditingkatkan: Login diubah menggunakan Verifikasi Kriptografi Hash
+        async function attemptLogin() {
             const userId = document.getElementById('loginUserSelect').value;
             const passwordInput = document.getElementById('loginPassword').value;
             const userIndex = appUsers.findIndex(u => u.id === userId);
@@ -677,16 +690,18 @@
 
             if (!user) return;
 
+            const hashedInput = await hashPassword(passwordInput);
+
             if (user.role === 'pic' && !user.password) {
                 if (passwordInput.trim().length < 4) {
                     alert("Password baru terlalu pendek!");
                     return;
                 }
-                appUsers[userIndex].password = passwordInput;
+                appUsers[userIndex].password = hashedInput;
                 saveStateToLocalStorage();
-                alert("Password berhasil disimpan secara privat!");
+                alert("Password berhasil dienkripsi dan disimpan secara privat!");
             } else {
-                if (user.password !== passwordInput) {
+                if (user.password !== hashedInput) {
                     alert("Kata sandi salah!");
                     return;
                 }
@@ -698,7 +713,6 @@
             document.getElementById('sessionDisplay').innerText = `User: ${user.name} [${user.role.toUpperCase()}]`;
             document.getElementById('loginPassword').value = "";
 
-            // Sinkronisasi elemen select dengan activePeriod yang tersimpan di sistem
             document.getElementById('currentPeriodFilter').value = activePeriod;
 
             if (user.role === "supervisor") {
@@ -800,7 +814,6 @@
 
             document.getElementById('periodLockMessage').style.display = "none";
             activePeriod = targetPeriod;
-            // Menyimpan periode aktif baru ke localStorage agar tidak ter-reset
             localStorage.setItem('idc_active_period_v4', activePeriod);
             generateMonthlyWorksheetsIfNotExist(activePeriod);
             renderMainWorkspace();
@@ -1129,6 +1142,7 @@
             renderMainWorkspace();
         }
 
+        // Fitur Diperbarui: Proses submit closing PIC otomatis mengubah status master klien di akun Supervisor
         function submitClosingClient(wsId) {
             const ws = appWorksheets.find(w => w.id === wsId);
             if (!ws) return;
@@ -1151,11 +1165,22 @@
                 return;
             }
 
+            // Kunci berkas progres bulanan
             ws.isClosed = true;
+
+            // KETENTUAN BARU: Otomatis merubah status master klien terkait menjadi Non-Aktif (🔴) di panel Supervisor
+            const masterClientIdx = appClients.findIndex(c => c.id === ws.clientId);
+            if (masterClientIdx > -1) {
+                appClients[masterClientIdx].isActive = false;
+            }
+
             saveStateToLocalStorage();
+            if (loggedInUser && loggedInUser.role === 'supervisor') {
+                renderSupervisorTables();
+            }
             renderMainWorkspace();
             checkPeriodLockStatus();
-            alert(`Progress untuk ${ws.clientName} resmi CLOSED & dikunci.`);
+            alert(`Progress untuk ${ws.clientName} resmi CLOSED. Status Klien di tabel master Supervisor otomatis diperbarui menjadi Non-Aktif.`);
         }
 
         function renderMainWorkspace() {
@@ -1404,14 +1429,23 @@
             });
         }
 
+        // Fitur Diperbarui: Jika supervisor membuka kembali kunci berkas, status master klien otomatis balik Aktif (🟢)
         function reopenClientWorkspace(wsId) {
             const ws = appWorksheets.find(w => w.id === wsId);
             if (ws) {
                 ws.isClosed = false;
+
+                // Kembalikan status master klien menjadi Aktif kembali
+                const masterClientIdx = appClients.findIndex(c => c.id === ws.clientId);
+                if (masterClientIdx > -1) {
+                    appClients[masterClientIdx].isActive = true;
+                }
+
                 saveStateToLocalStorage();
+                renderSupervisorTables();
                 renderMainWorkspace();
                 checkPeriodLockStatus();
-                alert(`Berkas ${ws.clientName} berhasil dibuka kembali.`);
+                alert(`Berkas ${ws.clientName} berhasil dibuka kembali. Status Klien di tabel master Supervisor dikembalikan menjadi Aktif.`);
             }
         }
 
@@ -1428,9 +1462,8 @@
             localStorage.setItem('idc_saved_font_v4', fontName);
         }
 
-        // Window Load Menggunakan Struktur Sinkronisasi Google Sheets Cloud Realtime
         window.onload = function() {
-            loadDataFromGoogleSheet(); // Tarik data dari Google Sheet saat aplikasi dijalankan
+            loadDataFromGoogleSheet(); 
             const savedTheme = localStorage.getItem('idc_saved_theme_v4') || 'corporate';
             const savedFont = localStorage.getItem('idc_saved_font_v4') || "'Inter', sans-serif";
             document.getElementById('themeSelector').value = savedTheme;
