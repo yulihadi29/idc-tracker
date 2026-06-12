@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integritas Data Consulting - Workspace Premium v4.7</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Quicksand:wght@500;700&family=Fira+Code:wght@400;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Integritas Data Consulting - Worksheet Bulanan v4.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Quicksand:wght@500;700&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ================= DEKLARASI VARIASI TEMA ================= */
         :root {
             --bg-main: #f8fafc;
             --bg-card: #ffffff;
@@ -24,51 +23,74 @@
         }
 
         body.theme-pastel-cute {
-            --bg-main: #fff5f7; --bg-card: #ffffff; --text-main: #4a3b4e; --text-muted: #9c84a6;
-            --border-color: #fbcfe8; --primary: #ec4899; --secondary: #f472b6; --success: #34d399;
-            --warning: #fbbf24; --danger: #f87171; --radius: 20px;
+            --bg-main: #fff5f7;
+            --bg-card: #ffffff;
+            --text-main: #4a3b4e;
+            --text-muted: #9c84a6;
+            --border-color: #fbcfe8;
+            --primary: #ec4899;
+            --secondary: #f472b6;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --radius: 20px;
         }
 
         body.theme-mint-fresh {
-            --bg-main: #f0fdf4; --bg-card: #ffffff; --text-main: #14532d; --text-muted: #74a887;
-            --border-color: #bbf7d0; --primary: #166534; --secondary: #22c55e; --success: #15803d;
-            --warning: #eab308; --danger: #b91c1c; --radius: 16px;
+            --bg-main: #f0fdf4;
+            --bg-card: #ffffff;
+            --text-main: #14532d;
+            --text-muted: #74a887;
+            --border-color: #bbf7d0;
+            --primary: #166534;
+            --secondary: #22c55e;
+            --success: #15803d;
+            --warning: #eab308;
+            --danger: #b91c1c;
+            --radius: 16px;
         }
 
-        body.theme-dark-vampire {
-            --bg-main: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
-            --border-color: #334155; --primary: #a855f7; --secondary: #c084fc; --success: #22c55e;
-            --warning: #eab308; --danger: #ef4444; --radius: 12px;
+        /* TEMA TAMBAHAN BARU */
+        body.theme-ocean-breeze {
+            --bg-main: #f0f9ff;
+            --bg-card: #ffffff;
+            --text-main: #0c4a6e;
+            --text-muted: #0284c7;
+            --border-color: #bae6fd;
+            --primary: #0369a1;
+            --secondary: #0ea5e9;
+            --success: #0d9488;
+            --warning: #f59e0b;
+            --danger: #e11d48;
+            --radius: 14px;
         }
 
-        body.theme-cyberpunk {
-            --bg-main: #11001c; --bg-card: #220035; --text-main: #00ffcc; --text-muted: #ff007f;
-            --border-color: #ff007f; --primary: #ff007f; --secondary: #00ffcc; --success: #00ffcc;
-            --warning: #ffff00; --danger: #ff3333; --radius: 8px;
+        body.theme-luxury-gold {
+            --bg-main: #1e1e1e;
+            --bg-card: #2a2a2a;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #4b5563;
+            --primary: #d97706;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --radius: 10px;
         }
 
-        body.theme-ocean-calm {
-            --bg-main: #e0f2fe; --bg-card: #ffffff; --text-main: #0369a1; --text-muted: #0284c7;
-            --border-color: #bae6fd; --primary: #0284c7; --secondary: #0ea5e9; --success: #0d9488;
-            --warning: #d97706; --danger: #e11d48; --radius: 14px;
-        }
-
-        body.theme-sunset-warm {
-            --bg-main: #fff7ed; --bg-card: #ffffff; --text-main: #7c2d12; --text-muted: #9a3412;
-            --border-color: #ffedd5; --primary: #ea580c; --secondary: #f97316; --success: #16a34a;
-            --warning: #ca8a04; --danger: #dc2626; --radius: 15px;
-        }
-
-        body.theme-forest-wood {
-            --bg-main: #fefcbf; --bg-card: #ffffff; --text-main: #1c1917; --text-muted: #78716c;
-            --border-color: #e7e5e4; --primary: #78350f; --secondary: #b45309; --success: #15803d;
-            --warning: #d97706; --danger: #991b1b; --radius: 12px;
-        }
-
-        body.theme-coffee-cream {
-            --bg-main: #fdf6e2; --bg-card: #faf0d3; --text-main: #433422; --text-muted: #8c765c;
-            --border-color: #e6d5bc; --primary: #614124; --secondary: #8a6240; --success: #496e4e;
-            --warning: #b08119; --danger: #a63232; --radius: 18px;
+        body.theme-lavender-dream {
+            --bg-main: #faf5ff;
+            --bg-card: #ffffff;
+            --text-main: #3b0764;
+            --text-muted: #7c3aed;
+            --border-color: #e9d5ff;
+            --primary: #6d28d9;
+            --secondary: #a855f7;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 18px;
         }
 
         body {
@@ -255,25 +277,16 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         table th, table td { border: 1px solid var(--border-color); padding: 10px; text-align: left; }
         table th { background: var(--bg-main); }
-        
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 20px;
+
+        .badge-client-type {
             font-size: 11px;
             font-weight: bold;
-            display: inline-block;
-        }
-        .status-active { background: #d1fae5; color: #065f46; }
-        .status-inactive { background: #fee2e2; color: #991b1b; }
-        
-        .type-badge {
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
+            margin-left: 5px;
         }
-        .type-badan { background: #e0f2fe; color: #0369a1; }
-        .type-perorangan { background: #fef3c7; color: #92400e; }
+        .badge-badan { background: #e0f2fe; color: #0369a1; }
+        .badge-perorangan { background: #fef3c7; color: #b45309; }
     </style>
 </head>
 <body>
@@ -305,40 +318,35 @@
                 <h1>🏢 Integritas Data Consulting</h1>
                 <p>Accounting, Tax & Advisory Services Workspace</p>
             </div>
-            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                <div style="font-weight: bold; color: white;" id="sessionDisplay">User: -</div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="syncBtn" onclick="syncToGoogleSheet()" class="btn-warning" style="padding: 6px 12px; font-size: 12px; font-weight: bold;">☁️ Sinkronkan Ke Sheet</button>
-                    <button onclick="logout()" class="btn-danger" style="padding: 6px 12px; font-size: 12px;">Keluar</button>
-                </div>
-                <span id="syncStatusLabel" style="font-size: 11px; font-weight: bold; opacity: 0.8;">Status Sheet: Ready</span>
+            <div style="text-align: right;">
+                <div style="font-weight: bold; margin-bottom: 5px;" id="sessionDisplay">User: -</div>
+                <button onclick="logout()" class="btn-danger" style="padding: 6px 12px; font-size: 12px;">Keluar Sistem</button>
             </div>
         </header>
 
         <div class="customizer-bar">
             <div>
-                <label>🎨 Pilihan Background & Tema: </label>
-                <select id="themeSelector" onchange="applyTheme(this.value)" style="padding: 5px; border-radius:4px; font-weight:600;">
-                    <option value="corporate">💼 Corporate Professional (Default)</option>
-                    <option value="pastel-cute">🌸 Pastel Cute (Pinky Imut)</option>
-                    <option value="mint-fresh">🌿 Mint Fresh (Hijau Segar)</option>
-                    <option value="dark-vampire">🧛 Dark Vampire (Mode Gelap/Ungu)</option>
-                    <option value="cyberpunk">🌌 Cyberpunk Neon (Futuristik)</option>
-                    <option value="ocean-calm">🌊 Ocean Calm (Biru Tenang)</option>
-                    <option value="sunset-warm">🌇 Sunset Warm (Jingga Hangat)</option>
-                    <option value="forest-wood">🪵 Forest Wood (Cokelat Klasik)</option>
-                    <option value="coffee-cream">☕ Coffee Cream (Muted Aesthetic)</option>
+                <label>🎨 Pilihan Background / Tema: </label>
+                <select id="themeSelector" onchange="applyTheme(this.value)" style="padding: 5px; border-radius:4px;">
+                    <option value="corporate">💼 Corporate Professional</option>
+                    <option value="pastel-cute">🌸 Pastel Cute (Bagus & Lucu)</option>
+                    <option value="mint-fresh">🌿 Mint Fresh (Segar & Profesional)</option>
+                    <option value="ocean-breeze">🌊 Ocean Breeze (Biru Cerah & Tenang)</option>
+                    <option value="luxury-gold">✨ Luxury Gold (Gelap & Premium)</option>
+                    <option value="lavender-dream">🔮 Lavender Dream (Ungu Estetik)</option>
                 </select>
             </div>
             <div>
-                <label>🔤 Gaya Tulisan (Font): </label>
+                <label>🔤 Pilihan Gaya Tulisan (Font): </label>
                 <select id="fontSelector" onchange="applyFont(this.value)" style="padding: 5px; border-radius:4px;">
-                    <option value="'Inter', sans-serif">Inter UI (Bersih)</option>
-                    <option value="'Quicksand', sans-serif">Quicksand (Bulat)</option>
-                    <option value="'Fredoka', sans-serif">Fredoka (Sangat Lucu)</option>
-                    <option value="'Nunito', sans-serif">Nunito (Dinamis)</option>
-                    <option value="'Poppins', sans-serif">Poppins (Modern Elegant)</option>
-                    <option value="'Fira Code', monospace">Fira Code (Tech Style)</option>
+                    <option value="'Inter', sans-serif">Inter UI (Bersih & Profesional)</option>
+                    <option value="'Quicksand', sans-serif">Quicksand (Bulat Profesional)</option>
+                    <option value="'Fredoka', sans-serif">Fredoka (Sangat Lucu/Imut)</option>
+                    <option value="'Nunito', sans-serif">Nunito (Friendly & Dinamis)</option>
+                    <option value="'Poppins', sans-serif">Poppins (Modern & Elegan)</option>
+                    <option value="'Roboto', sans-serif">Roboto (Kaku & Formal)</option>
+                    <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Trendy & Clean)</option>
+                    <option value="'Lora', serif">Lora (Serif Mewah / Klasik)</option>
                 </select>
             </div>
         </div>
@@ -365,9 +373,19 @@
         </div>
 
         <div id="supervisorControlPanel" class="panel" style="display: none;">
-            <h3 style="margin-top: 0;">🔧 Pengaturan Master Klien & Tim PIC</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div style="border-right: 1px solid var(--border-color); padding-right: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin: 0;">🔧 Pengaturan Master Klien & Tim PIC</h3>
+                <div>
+                    <label style="font-weight:bold; font-size:13px; margin-right:5px;">Mode Tampilan Panel:</label>
+                    <select id="panelViewSelector" onchange="togglePanelViewMode(this.value)" style="padding:5px; border-radius:4px;">
+                        <option value="detail">📋 Mode Detail (Lengkap)</option>
+                        <option value="summary">📋 Mode Ringkasan (Kompak)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="panelFormWorkspaceGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div id="picManagementContainerZone" style="border-right: 1px solid var(--border-color); padding-right: 20px;">
                     <h4>Manajemen Akun PIC</h4>
                     <div style="display: flex; gap:10px; margin-bottom: 10px;">
                         <input type="text" id="newPicName" placeholder="Tulis nama lengkap PIC baru..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--border-color);">
@@ -378,20 +396,23 @@
                         <tbody></tbody>
                     </table>
                 </div>
-                <div>
-                    <h4>Registrasi Daftar Klien Master Baru</h4>
+                <div id="clientRegistrationContainerZone">
+                    <h4>Registrasi Daftar Klien Tetap Bulanan</h4>
                     <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
-                        <input type="text" id="newClientName" placeholder="Nama Perusahaan / Perorangan Klien..." style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); box-sizing:border-box;">
+                        <input type="text" id="newClientName" placeholder="Nama Perusahaan Klien..." style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); box-sizing:border-box;">
                         
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <label style="font-size: 14px; font-weight: 600; width: 100px;">Jenis Klien:</label>
-                            <select id="newClientType" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-                                <option value="badan">🏢 Badan (PT / CV / Yayasan)</option>
-                                <option value="perorangan">👤 Perorangan (Pribadi / OP)</option>
+                        <div>
+                            <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">Jenis Klien:</label>
+                            <select id="newClientTypeSelect" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color);">
+                                <option value="Badan">🏢 Badan (PT / CV / Firma)</option>
+                                <option value="Perorangan">👤 Perorangan (Individu)</option>
                             </select>
                         </div>
 
-                        <select id="newClientPicSelect" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color);"></select>
+                        <div>
+                            <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">Pilih PIC Utama:</label>
+                            <select id="newClientPicSelect" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color);"></select>
+                        </div>
                         
                         <div style="background: var(--bg-main); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
                             <span style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 6px;">Cakupan Jasa Yang Dibutuhkan Klien:</span>
@@ -404,21 +425,16 @@
                     </div>
                 </div>
             </div>
-            <hr style="margin:20px 0; border:0; border-top:1px solid var(--border-color);">
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
-                <h4 style="margin: 0;">Daftar Klien Master (Sinkronisasi Otomatis Ke Matriks Kerja)</h4>
-                <button id="toggleViewModeBtn" onclick="toggleClientViewMode()" class="btn-warning" style="padding: 6px 12px; font-size: 12px; font-weight: bold;">👁️ Mode Tampilan: Detail</button>
-            </div>
-            
+            <hr id="panelDividerLine" style="margin:20px 0; border:0; border-top:1px solid var(--border-color);">
+            <h4>Daftar Klien Master (Di-roll otomatis setiap bulan)</h4>
             <table id="masterClientTable">
-                <thead id="masterClientHeader"></thead>
+                <thead><tr><th>Nama Perusahaan Klien</th><th>Jenis</th><th>PIC Utama</th><th>Status Klien</th><th>Layanan Aktif</th><th>Aksi</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
 
         <div class="period-selector">
-            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; flex: 1;">
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <span><strong>Periode Bulan Kerja:</strong></span>
                 <select id="currentPeriodFilter" onchange="changeSystemPeriod(this.value)">
                     <option value="2026-01">Januari 2026</option>
@@ -440,18 +456,19 @@
                 <button id="btnRequestBypass" onclick="openBypassRequestModal()" class="btn-warning" style="display:none; padding:6px 12px; font-size:12px;">✉️ Kirim Permohonan Akses Periode Baru</button>
             </div>
 
-            <div id="supervisorPicFilterZone" style="display: none; align-items: center; gap: 15px; flex-wrap: wrap;">
-                <div>
-                    <span>🔍 <strong>Filter PIC:</strong></span>
-                    <select id="supervisorPicSelectFilter" onchange="renderMainWorkspace()" style="padding: 6px; border-radius: 6px; font-weight: 500;"></select>
-                </div>
-                <div>
-                    <span>🏢 <strong>Jenis Klien:</strong></span>
-                    <select id="supervisorTypeSelectFilter" onchange="renderMainWorkspace()" style="padding: 6px; border-radius: 6px; font-weight: 500;">
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div id="supervisorClientTypeFilterZone" style="display: none; align-items: center; gap: 10px;">
+                    <span>🔍 <strong>Filter Jenis Klien:</strong></span>
+                    <select id="supervisorClientTypeSelectFilter" onchange="renderMainWorkspace()" style="padding: 6px; border-radius: 6px; font-weight: 500;">
                         <option value="ALL">-- Semua Jenis --</option>
-                        <option value="badan">🏢 Badan (PT/CV/Yayasan)</option>
-                        <option value="perorangan">👤 Perorangan (Pribadi)</option>
+                        <option value="Badan">🏢 Badan</option>
+                        <option value="Perorangan">👤 Perorangan</option>
                     </select>
+                </div>
+
+                <div id="supervisorPicFilterZone" style="display: none; align-items: center; gap: 10px;">
+                    <span>🔍 <strong>Filter PIC (Review View):</strong></span>
+                    <select id="supervisorPicSelectFilter" onchange="renderMainWorkspace()" style="padding: 6px; border-radius: 6px; font-weight: 500 регулярно;"></select>
                 </div>
             </div>
         </div>
@@ -461,55 +478,6 @@
     </div>
 
     <script>
-        // ================= KONEKTOR GOOGLE SHEETS =================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVn2B13-kkdC_FH9T1yLwQkDa0SXLxMpCpkDt2A4EZWXcoF8jIE9z4iwMCGwVhrfVd/exec";
-
-        async function syncToGoogleSheet() {
-            if (!SCRIPT_URL || SCRIPT_URL.includes("MASUKKAN_URL_WEB_APP")) {
-                document.getElementById('syncStatusLabel').innerText = "Status Sheet: URL Belum Dikonfigurasi";
-                return;
-            }
-            
-            const label = document.getElementById('syncStatusLabel');
-            const btn = document.getElementById('syncBtn');
-            label.innerText = "Status Sheet: Mensejajarkan Cloud... ⏳";
-            label.style.color = "var(--warning)";
-            btn.disabled = true;
-
-            const packet = {
-                action: "sync_all",
-                payload: {
-                    users: appUsers,
-                    clients: appClients,
-                    worksheets: appWorksheets,
-                    bypassRequests: appBypassRequests,
-                    approvedBypasses: approvedBypasses
-                }
-            };
-
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors", 
-                    cache: "no-cache",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(packet)
-                });
-                label.innerText = "Status Sheet: Berhasil Sinkronisasi! Cloud Terupdate ☁️";
-                label.style.color = "var(--success)";
-            } catch (error) {
-                console.error("Gagal sinkronisasi data ke Google Sheet:", error);
-                label.innerText = "Status Sheet: Sinkronisasi Gagal (Offline) ❌";
-                label.style.color = "var(--danger)";
-            } finally {
-                btn.disabled = false;
-                setTimeout(() => {
-                    label.innerText = "Status Sheet: Berkas Sinkron (Lokal + Cloud)";
-                    label.style.color = "inherit";
-                }, 4000);
-            }
-        }
-
         const initialUsers = [
             { id: "supervisor_idc", name: "Supervisor Utama", role: "supervisor", password: "admin" },
             { id: "pic_budi", name: "Budi Hermawan", role: "pic", password: "" },
@@ -517,8 +485,8 @@
         ];
 
         const initialClients = [
-            { id: "cli_1", name: "PT. Global Teknologi Mandiri", type: "badan", pic: "pic_budi", status: "aktif", services: { accounting: true, tax: true, special: false } },
-            { id: "cli_2", name: "CV. Nusantara Agro Abadi", type: "badan", pic: "pic_siti", status: "aktif", services: { accounting: true, tax: true, special: true } }
+            { id: "cli_1", name: "PT. Global Teknologi Mandiri", type: "Badan", pic: "pic_budi", isActive: true, services: { accounting: true, tax: true, special: false } },
+            { id: "cli_2", name: "CV. Nusantara Agro Abadi", type: "Badan", pic: "pic_siti", isActive: true, services: { accounting: true, tax: true, special: true } }
         ];
 
         let appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
@@ -526,10 +494,10 @@
         let appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
         let appBypassRequests = JSON.parse(localStorage.getItem('idc_bypass_requests_v4')) || [];
         let approvedBypasses = JSON.parse(localStorage.getItem('idc_approved_bypasses_v4')) || {};
+        let panelViewMode = localStorage.getItem('idc_panel_view_mode_v4') || 'detail';
 
         let loggedInUser = null;
         let activePeriod = "2026-06";
-        let clientViewMode = "detail"; // Default status view mode
 
         function saveStateToLocalStorage() {
             localStorage.setItem('idc_users_v4', JSON.stringify(appUsers));
@@ -537,62 +505,30 @@
             localStorage.setItem('idc_worksheets_v4', JSON.stringify(appWorksheets));
             localStorage.setItem('idc_bypass_requests_v4', JSON.stringify(appBypassRequests));
             localStorage.setItem('idc_approved_bypasses_v4', JSON.stringify(approvedBypasses));
-            syncToGoogleSheet();
         }
 
-        function changeClientPicAssignment(clientId, newPicId) {
-            const clientIdx = appClients.findIndex(c => c.id === clientId);
-            if (clientIdx > -1) {
-                appClients[clientIdx].pic = newPicId;
-            }
-            appWorksheets.forEach(ws => {
-                if (ws.clientId === clientId) {
-                    ws.picId = newPicId;
+        window.addEventListener('storage', (e) => {
+            if (['idc_worksheets_v4', 'idc_users_v4', 'idc_clients_v4', 'idc_bypass_requests_v4', 'idc_approved_bypasses_v4'].includes(e.key)) {
+                appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
+                appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
+                appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
+                appBypassRequests = JSON.parse(localStorage.getItem('idc_bypass_requests_v4')) || [];
+                approvedBypasses = JSON.parse(localStorage.getItem('idc_approved_bypasses_v4')) || {};
+                if (loggedInUser) {
+                    renderMainWorkspace();
+                    if (loggedInUser.role === 'supervisor') {
+                        renderSupervisorTables();
+                        renderSupervisorRequests();
+                    }
+                    checkPeriodLockStatus();
                 }
-            });
-            saveStateToLocalStorage();
-            renderSupervisorTables();
-            renderMainWorkspace();
-        }
-
-        function toggleClientStatus(clientId, newStatus) {
-            const clientIdx = appClients.findIndex(c => c.id === clientId);
-            if (clientIdx > -1) {
-                appClients[clientIdx].status = newStatus;
-                
-                if (newStatus === 'non-aktif') {
-                    appWorksheets = appWorksheets.filter(ws => !(ws.clientId === clientId && ws.period === activePeriod));
-                } else {
-                    generateMonthlyWorksheetsIfNotExist(activePeriod);
-                }
-                
-                saveStateToLocalStorage();
-                renderSupervisorTables();
-                renderMainWorkspace();
             }
-        }
-
-        function deleteClient(clientId) {
-            if (confirm('Hapus klien dari daftar tetap master? Tindakan ini juga akan menghapus seluruh Matriks Progres Berjalan klien terkait secara permanen.')) {
-                appClients = appClients.filter(c => c.id !== clientId);
-                appWorksheets = appWorksheets.filter(ws => ws.clientId !== clientId);
-                saveStateToLocalStorage();
-                renderSupervisorTables();
-                renderMainWorkspace();
-            }
-        }
-
-        function deleteUnassignedWorksheet(wsId) {
-            if (confirm('Apakah Anda yakin ingin menghapus Matriks Progres Kerja yang menggantung ini?')) {
-                appWorksheets = appWorksheets.filter(ws => ws.id !== wsId);
-                saveStateToLocalStorage();
-                renderMainWorkspace();
-            }
-        }
+        });
 
         function generateMonthlyWorksheetsIfNotExist(period) {
             appClients.forEach(client => {
-                if (client.status === 'non-aktif') return;
+                // Hanya roll otomatis untuk klien master yang berstatus AKTIF
+                if (client.isActive === false) return;
 
                 const sheetKey = `${client.id}_${period}`;
                 const exists = appWorksheets.some(ws => ws.id === sheetKey);
@@ -621,8 +557,8 @@
                         id: sheetKey,
                         clientId: client.id,
                         clientName: client.name,
-                        clientType: client.type || "badan", 
-                        picId: client.pic, 
+                        clientType: client.type || "Badan",
+                        picId: client.pic,
                         period: period,
                         isClosed: false,
                         extraWorkExplanation: "",
@@ -712,7 +648,10 @@
                 document.getElementById('supervisorRequestsPanel').style.display = "block";
                 document.getElementById('supervisorControlPanel').style.display = "block";
                 document.getElementById('supervisorPicFilterZone').style.display = "flex";
+                document.getElementById('supervisorClientTypeFilterZone').style.display = "flex";
                 document.getElementById('supervisorOverrideNotice').style.display = "inline";
+                document.getElementById('panelViewSelector').value = panelViewMode;
+                togglePanelViewMode(panelViewMode);
                 buildSupervisorPicDropdownFilter();
                 renderSupervisorTables();
                 renderSupervisorRequests();
@@ -721,6 +660,7 @@
                 document.getElementById('supervisorRequestsPanel').style.display = "none";
                 document.getElementById('supervisorControlPanel').style.display = "none";
                 document.getElementById('supervisorPicFilterZone').style.display = "none";
+                document.getElementById('supervisorClientTypeFilterZone').style.display = "none";
                 document.getElementById('supervisorOverrideNotice').style.display = "none";
             }
 
@@ -738,10 +678,7 @@
 
         function buildSupervisorPicDropdownFilter() {
             const filterSelect = document.getElementById('supervisorPicSelectFilter');
-            filterSelect.innerHTML = `
-                <option value="ALL">-- Tampilkan Semua Klien PIC --</option>
-                <option value="UNASSIGNED">⚠️ Tampilkan Berkas Menggantung (Unassigned)</option>
-            `;
+            filterSelect.innerHTML = `<option value="ALL">-- Tampilkan Semua Klien PIC --</option>`;
             appUsers.filter(u => u.role === 'pic').forEach(p => {
                 filterSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
             });
@@ -749,6 +686,7 @@
 
         function checkPeriodLockStatus() {
             if (!loggedInUser) return;
+            
             if (loggedInUser.role === 'supervisor') {
                 document.getElementById('periodLockMessage').style.display = "none";
                 document.getElementById('btnRequestBypass').style.display = "none";
@@ -757,12 +695,14 @@
 
             const periods = Array.from(document.querySelectorAll('#currentPeriodFilter option')).map(o => o.value);
             const activeIdx = periods.indexOf(activePeriod);
+            
             let isAnyFutureLocked = false;
             
             for (let i = 0; i < periods.length; i++) {
                 if (i > activeIdx) {
                     let currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod && ws.picId === loggedInUser.id);
                     let hasUnclosed = currentPeriodSheets.some(ws => !ws.isClosed);
+                    
                     let isBypassed = approvedBypasses[loggedInUser.id] && approvedBypasses[loggedInUser.id].includes(periods[i]);
 
                     if (hasUnclosed && !isBypassed) {
@@ -789,6 +729,7 @@
             if (loggedInUser.role === 'pic' && targetIdx > activeIdx) {
                 let currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod && ws.picId === loggedInUser.id);
                 let hasUnclosed = currentPeriodSheets.some(ws => !ws.isClosed);
+                
                 let isBypassed = approvedBypasses[loggedInUser.id] && approvedBypasses[loggedInUser.id].includes(targetPeriod);
 
                 if (hasUnclosed && !isBypassed) {
@@ -810,13 +751,18 @@
             const periods = Array.from(document.querySelectorAll('#currentPeriodFilter option')).map(o => o.value);
             const activeIdx = periods.indexOf(activePeriod);
             
-            if (activeIdx === periods.length - 1) return alert("Anda berada di penghujung periode sistem.");
+            if (activeIdx === periods.length - 1) {
+                return alert("Anda berada di penghujung periode sistem.");
+            }
 
             const nextPeriodTarget = periods[activeIdx + 1];
-            const reason = prompt(`Klien Anda di bulan ${activePeriod} belum diclose semuanya.\n\nKirim permohonan ke supervisor?\nTuliskan alasan/kendala utama Anda:`);
+            const reason = prompt(`Klien Anda di bulan ${activePeriod} belum diclose semuanya.\n\nKirim permohonan ke supervisor agar diizinkan lanjut ke periode [${nextPeriodTarget}]?\nTuliskan alasan/kendala utama Anda:`);
             
             if (reason === null) return;
-            if (!reason.trim()) return alert("Alasan permohonan wajib diisi!");
+            if (!reason.trim()) return alert("Alasan permohonan wajib diisi agar diproses supervisor!");
+
+            const reqExists = appBypassRequests.some(r => r.picId === loggedInUser.id && r.targetPeriod === nextPeriodTarget && r.status === "pending");
+            if (reqExists) return alert("Anda sudah mengirimkan permohonan untuk periode tersebut. Mohon tunggu verifikasi Supervisor.");
 
             appBypassRequests.push({
                 id: 'req_' + Date.now(),
@@ -829,29 +775,13 @@
             });
 
             saveStateToLocalStorage();
-            alert("Permohonan berhasil dikirim ke dashboard Supervisor!");
-        }
-
-        function respondBypassRequest(reqId, isApproved) {
-            const idx = appBypassRequests.findIndex(r => r.id === reqId);
-            if (idx > -1) {
-                const req = appBypassRequests[idx];
-                req.status = isApproved ? "approved" : "rejected";
-                
-                if (isApproved) {
-                    if (!approvedBypasses[req.picId]) approvedBypasses[req.picId] = [];
-                    if (!approvedBypasses[req.picId].includes(req.targetPeriod)) {
-                        approvedBypasses[req.picId].push(req.targetPeriod);
-                    }
-                }
-                saveStateToLocalStorage();
-                renderSupervisorRequests();
-            }
+            alert("Permohonan berhasil dikirim ke dashboard Supervisor Utama!");
         }
 
         function renderSupervisorRequests() {
             const tbody = document.querySelector('#supervisorRequestsTable tbody');
             tbody.innerHTML = '';
+            
             const pendings = appBypassRequests.filter(r => r.status === "pending");
             if (pendings.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); font-style:italic;">Tidak ada permohonan masuk saat ini.</td></tr>`;
@@ -864,7 +794,7 @@
                         <td><strong>${req.picName}</strong></td>
                         <td><span class="badge-late" style="background:#475569;">${req.sourcePeriod}</span></td>
                         <td><span class="badge-late" style="background:#16a34a;">${req.targetPeriod}</span></td>
-                        <td><i>"${req.reason}"</i></td>
+                        <td><i style="font-size:13px; color:var(--text-main);">"${req.reason}"</i></td>
                         <td>
                             <button onclick="respondBypassRequest('${req.id}', true)" class="btn-success" style="padding:4px 8px; font-size:11px; margin-right:5px;">Setujui</button>
                             <button onclick="respondBypassRequest('${req.id}', false)" class="btn-danger" style="padding:4px 8px; font-size:11px;">Tolak</button>
@@ -874,23 +804,45 @@
             });
         }
 
-        // MODIFIKASI: Mengubah status siklus tampilan tabel (Sekarang mendukung 3 Mode: Detail -> Ringkasan -> Judul Saja)
-        function toggleClientViewMode() {
-            const btn = document.getElementById('toggleViewModeBtn');
-            if (clientViewMode === "detail") {
-                clientViewMode = "ringkasan";
-                btn.innerText = "👁️ Mode Tampilan: Ringkasan";
-                btn.className = "btn-success";
-            } else if (clientViewMode === "ringkasan") {
-                clientViewMode = "judul";
-                btn.innerText = "👁️ Mode Tampilan: Judul Saja";
-                btn.className = "btn-warning";
+        function respondBypassRequest(reqId, isApproved) {
+            const reqIdx = appBypassRequests.findIndex(r => r.id === reqId);
+            if (reqIdx === -1) return;
+
+            const req = appBypassRequests[reqIdx];
+            if (isApproved) {
+                req.status = "approved";
+                if (!approvedBypasses[req.picId]) {
+                    approvedBypasses[req.picId] = [];
+                }
+                if (!approvedBypasses[req.picId].includes(req.targetPeriod)) {
+                    approvedBypasses[req.picId].push(req.targetPeriod);
+                }
+                alert(`Permohonan ${req.picName} dikabulkan. PIC sekarang dapat mengakses periode ${req.targetPeriod}.`);
             } else {
-                clientViewMode = "detail";
-                btn.innerText = "👁️ Mode Tampilan: Detail";
-                btn.className = "btn-primary";
+                req.status = "rejected";
+                alert(`Permohonan ${req.picName} resmi ditolak.`);
             }
+
+            saveStateToLocalStorage();
             renderSupervisorTables();
+            renderSupervisorRequests();
+            renderMainWorkspace();
+        }
+
+        function togglePanelViewMode(mode) {
+            panelViewMode = mode;
+            localStorage.setItem('idc_panel_view_mode_v4', mode);
+            
+            const formGrid = document.getElementById('panelFormWorkspaceGrid');
+            const divider = document.getElementById('panelDividerLine');
+            
+            if (mode === 'summary') {
+                formGrid.style.display = 'none';
+                divider.style.display = 'none';
+            } else {
+                formGrid.style.display = 'grid';
+                divider.style.display = 'block';
+            }
         }
 
         function renderSupervisorTables() {
@@ -901,95 +853,83 @@
                     <tr>
                         <td><strong>${p.name}</strong></td>
                         <td>${p.password ? '✅ Terkunci' : '⏳ Belum Set'}</td>
-                        <td><button onclick="deletePic('${p.id}')" class="btn-danger" style="padding:4px 8px; font-size:11px;">Hapus Akun</button></td>
+                        <td><button onclick="deletePic('${p.id}')" class="btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button></td>
                     </tr>
                 `;
             });
 
             const picSelect = document.getElementById('newClientPicSelect');
-            picSelect.innerHTML = '';
+            picSelect.innerHTML = `<option value="unassigned">-- Biarkan Unassigned --</option>`;
             appUsers.filter(u => u.role === 'pic').forEach(p => {
                 picSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
             });
 
-            // GENERATE HEADER SECARA DINAMIS BERDASARKAN MODE REVIEW SUPERVISOR (Menambahkan Mode Ringkasan)
-            const headerContainer = document.getElementById('masterClientHeader');
-            if (clientViewMode === "judul") {
-                headerContainer.innerHTML = `<tr><th>Nama Perusahaan / Perorangan Klien Master</th><th>Jenis Klien</th></tr>`;
-            } else if (clientViewMode === "ringkasan") {
-                headerContainer.innerHTML = `<tr><th>Nama Perusahaan Klien</th><th>Jenis</th><th>PIC Utama</th></tr>`;
-            } else {
-                headerContainer.innerHTML = `<tr><th>Nama Perusahaan Klien</th><th>Jenis</th><th>PIC Utama</th><th>Layanan Aktif</th><th>Status Klien</th><th>Aksi</th></tr>`;
-            }
-
             const clientBody = document.querySelector('#masterClientTable tbody');
             clientBody.innerHTML = '';
-            
-            appClients.forEach(c => {
-                if(!c.status) c.status = 'aktif';
-                if(!c.type) c.type = 'badan';
+            appClients.forEach((c, idx) => {
+                let s = c.services || { accounting: true, tax: true, special: false };
+                let activeServicesLabels = [];
+                if (s.accounting) activeServicesLabels.push("Akuntansi");
+                if (s.tax) activeServicesLabels.push("Pajak");
+                if (s.special) activeServicesLabels.push("SpecialCase");
 
-                let typeLabel = c.type === 'badan' ? '🏢 Badan' : '👤 Perorangan';
-                let typeBadgeClass = c.type === 'badan' ? 'type-badan' : 'type-perorangan';
-                
-                const currentPicObj = appUsers.find(u => u.id === c.pic);
-                let currentPicName = currentPicObj ? currentPicObj.name : "⚠️ Unassigned";
+                let picDropdownOptions = `<option value="unassigned" ${c.pic === 'unassigned' ? 'selected' : ''}>Unassigned</option>`;
+                appUsers.filter(u => u.role === 'pic').forEach(p => {
+                    picDropdownOptions += `<option value="${p.id}" ${c.pic === p.id ? 'selected' : ''}>${p.name}</option>`;
+                });
 
-                if (clientViewMode === "judul") {
-                    clientBody.innerHTML += `
-                        <tr>
-                            <td><strong style="font-size: 14px; color: var(--primary);">${c.name}</strong></td>
-                            <td><span class="type-badge ${typeBadgeClass}">${typeLabel}</span></td>
-                        </tr>
-                    `;
-                } else if (clientViewMode === "ringkasan") {
-                    // MODE RINGKASAN BARU: Format tabel bersih & tidak memanjang kebawah
-                    clientBody.innerHTML += `
-                        <tr>
-                            <td><strong style="font-size: 14px; color: var(--primary);">${c.name}</strong></td>
-                            <td><span class="type-badge ${typeBadgeClass}">${typeLabel}</span></td>
-                            <td><span style="font-weight:600; color:var(--text-main);">${currentPicName}</span></td>
-                        </tr>
-                    `;
-                } else {
-                    // MODE DETAIL UTUH
-                    let servicesLabels = [];
-                    if (c.services.accounting) servicesLabels.push("Akuntansi");
-                    if (c.services.tax) servicesLabels.push("Pajak");
-                    if (c.services.special) servicesLabels.push("SpecialCase");
+                let statusDropdown = `
+                    <select onchange="updateMasterClientStatus('${c.id}', this.value)" style="font-size:12px; padding:3px; border-radius:4px;">
+                        <option value="true" ${c.isActive !== false ? 'selected' : ''}>🟢 Aktif</option>
+                        <option value="false" ${c.isActive === false ? 'selected' : ''}>🔴 Non-Aktif</option>
+                    </select>
+                `;
 
-                    let picOptionsHtml = '';
-                    let isPicExist = appUsers.some(u => u.id === c.pic);
-                    
-                    picOptionsHtml += `<option value="UNASSIGNED" ${!isPicExist ? 'selected' : ''}>⚠️ Unassigned / Pilih PIC</option>`;
-                    appUsers.filter(u => u.role === 'pic').forEach(p => {
-                        picOptionsHtml += `<option value="${p.id}" ${c.pic === p.id && isPicExist ? 'selected' : ''}>${p.name}</option>`;
-                    });
-
-                    let statusBadgeClass = c.status === 'aktif' ? 'status-active' : 'status-inactive';
-                    let statusButtonHtml = c.status === 'aktif' 
-                        ? `<button onclick="toggleClientStatus('${c.id}', 'non-aktif')" class="btn-warning" style="padding:4px 8px; font-size:11px; margin-right:4px;">Non-Aktifkan</button>`
-                        : `<button onclick="toggleClientStatus('${c.id}', 'aktif')" class="btn-success" style="padding:4px 8px; font-size:11px; margin-right:4px;">Aktifkan</button>`;
-
-                    clientBody.innerHTML += `
-                        <tr>
-                            <td><strong>${c.name}</strong></td>
-                            <td><span class="type-badge ${typeBadgeClass}">${c.type.toUpperCase()}</span></td>
-                            <td>
-                                <select onchange="changeClientPicAssignment('${c.id}', this.value)" style="padding:4px; font-size:13px; border-radius:4px; font-weight:500;">
-                                    ${picOptionsHtml}
-                                </select>
-                            </td>
-                            <td><span style="font-size:11px; font-weight:bold; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${servicesLabels.join(', ')}</span></td>
-                            <td><span class="status-badge ${statusBadgeClass}">${c.status.toUpperCase()}</span></td>
-                            <td>
-                                ${statusButtonHtml}
-                                <button onclick="deleteClient('${c.id}')" class="btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button>
-                            </td>
-                        </tr>
-                    `;
-                }
+                clientBody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.name}</strong></td>
+                        <td><span class="badge-client-type ${c.type === 'Perorangan' ? 'badge-perorangan' : 'badge-badan'}">${c.type || 'Badan'}</span></td>
+                        <td>
+                            <select onchange="updateMasterClientPic('${c.id}', this.value)" style="font-size:12px; padding:3px; border-radius:4px;">
+                                ${picDropdownOptions}
+                            </select>
+                        </td>
+                        <td>${statusDropdown}</td>
+                        <td><span style="font-size:11px; font-weight:bold; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${activeServicesLabels.join(', ')}</span></td>
+                        <td><button onclick="deleteClient('${c.id}')" class="btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button></td>
+                    </tr>
+                `;
             });
+        }
+
+        function updateMasterClientPic(clientId, newPicId) {
+            const idx = appClients.findIndex(c => c.id === clientId);
+            if (idx > -1) {
+                appClients[idx].pic = newPicId;
+                
+                appWorksheets.forEach((ws, wsIdx) => {
+                    if (ws.clientId === clientId && ws.period === activePeriod) {
+                        appWorksheets[wsIdx].picId = newPicId;
+                    }
+                });
+                
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                renderMainWorkspace();
+                alert(`PIC Utama untuk ${appClients[idx].name} berhasil diubah.`);
+            }
+        }
+
+        function updateMasterClientStatus(clientId, statusStr) {
+            const idx = appClients.findIndex(c => c.id === clientId);
+            if (idx > -1) {
+                appClients[idx].isActive = (statusStr === "true");
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                generateMonthlyWorksheetsIfNotExist(activePeriod);
+                renderMainWorkspace();
+                alert(`Status Klien ${appClients[idx].name} diubah menjadi ${appClients[idx].isActive ? 'AKTIF' : 'NON-AKTIF'}.`);
+            }
         }
 
         function registerNewPic() {
@@ -1005,37 +945,39 @@
         }
 
         function deletePic(picId) {
-            if (confirm('Hapus akun PIC ini dari database? Seluruh matriks berjalannya akan otomatis berstatus Unassigned.')) {
+            if (confirm('Hapus akun PIC ini dari sistem database?')) {
                 appUsers = appUsers.filter(u => u.id !== picId);
-                appWorksheets.forEach(ws => {
-                    if(ws.picId === picId) ws.picId = "UNASSIGNED";
-                });
-                appClients.forEach(c => {
-                    if(c.pic === picId) c.pic = "UNASSIGNED";
-                });
                 saveStateToLocalStorage();
                 renderSupervisorTables();
                 buildSupervisorPicDropdownFilter();
                 initLoginInterface();
-                renderMainWorkspace();
             }
         }
 
         function registerNewClient() {
             const name = document.getElementById('newClientName').value.trim();
-            const type = document.getElementById('newClientType').value;
+            const type = document.getElementById('newClientTypeSelect').value;
             const picId = document.getElementById('newClientPicSelect').value;
+            
             const accChecked = document.getElementById('serviceAccounting').checked;
             const taxChecked = document.getElementById('serviceTax').checked;
             const specChecked = document.getElementById('serviceSpecial').checked;
 
             if (!name || !picId) return alert('Data registrasi klien tidak lengkap!');
-            if (!accChecked && !taxChecked && !specChecked) return alert('Pilih minimal satu cakupan jasa!');
+            if (!accChecked && !taxChecked && !specChecked) return alert('Gagal! Pilih minimal satu cakupan jasa yang dibutuhkan klien.');
             
             const newClientId = 'cli_' + Date.now();
             appClients.push({ 
-                id: newClientId, name: name, type: type, pic: picId, status: 'aktif',
-                services: { accounting: accChecked, tax: taxChecked, special: specChecked }
+                id: newClientId, 
+                name: name, 
+                type: type,
+                pic: picId,
+                isActive: true,
+                services: {
+                    accounting: accChecked,
+                    tax: taxChecked,
+                    special: specChecked
+                }
             });
             saveStateToLocalStorage();
             
@@ -1043,6 +985,32 @@
             renderSupervisorTables();
             generateMonthlyWorksheetsIfNotExist(activePeriod);
             renderMainWorkspace();
+        }
+
+        function deleteClient(clientId) {
+            if (confirm('Hapus klien dari daftar tetap master?')) {
+                appClients = appClients.filter(c => c.id !== clientId);
+                saveStateToLocalStorage();
+                renderSupervisorTables();
+                renderMainWorkspace();
+            }
+        }
+
+        function deleteWorksheetCardDirectly(wsId, clientName) {
+            if (confirm(`Hapus berkas matriks progres berjalan untuk "${clientName}" pada periode ini?`)) {
+                appWorksheets = appWorksheets.filter(ws => ws.id !== wsId);
+                saveStateToLocalStorage();
+                renderMainWorkspace();
+            }
+        }
+
+        function updateClientPicDirectly(wsId, newPicId) {
+            const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
+            if(wsIndex > -1) {
+                appWorksheets[wsIndex].picId = newPicId;
+                saveStateToLocalStorage();
+                renderMainWorkspace();
+            }
         }
 
         function updateTaskCheckbox(wsId, taskId, isChecked) {
@@ -1063,7 +1031,9 @@
             const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
             if(wsIndex > -1) {
                 const tIndex = appWorksheets[wsIndex].tasks.findIndex(t => t.id === taskId);
-                if(tIndex > -1) appWorksheets[wsIndex].tasks[tIndex].deadline = dateValue;
+                if(tIndex > -1) {
+                    appWorksheets[wsIndex].tasks[tIndex].deadline = dateValue;
+                }
             }
             saveStateToLocalStorage();
             renderMainWorkspace();
@@ -1073,7 +1043,9 @@
             const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
             if(wsIndex > -1) {
                 const tIndex = appWorksheets[wsIndex].tasks.findIndex(t => t.id === taskId);
-                if(tIndex > -1) appWorksheets[wsIndex].tasks[tIndex].progressDetail = textValue;
+                if(tIndex > -1) {
+                    appWorksheets[wsIndex].tasks[tIndex].progressDetail = textValue;
+                }
             }
             saveStateToLocalStorage();
             renderMainWorkspace();
@@ -1081,58 +1053,49 @@
 
         function updateExtraExplanation(wsId, textValue) {
             const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
-            if(wsIndex > -1) appWorksheets[wsIndex].extraWorkExplanation = textValue;
+            if(wsIndex > -1) {
+                appWorksheets[wsIndex].extraWorkExplanation = textValue;
+            }
             saveStateToLocalStorage();
             renderMainWorkspace();
         }
 
         function updateAttachmentLink(wsId, type, urlValue) {
             const wsIndex = appWorksheets.findIndex(w => w.id === wsId);
-            if(wsIndex > -1) appWorksheets[wsIndex].attachments[type] = urlValue.trim();
+            if(wsIndex > -1) {
+                appWorksheets[wsIndex].attachments[type] = urlValue.trim();
+            }
             saveStateToLocalStorage();
             renderMainWorkspace();
         }
 
-        // MODIFIKASI: Aturan penutupan progres bulanan (Rule validasi link lampiran khusus Special Case)
         function submitClosingClient(wsId) {
             const ws = appWorksheets.find(w => w.id === wsId);
             if (!ws) return;
 
-            // Validasi core task (Akuntansi & Pajak) tetap menjadi syarat utama
             const coreTasks = ws.tasks.filter(t => t.category === 'accounting' || t.category === 'tax');
-            if (!coreTasks.every(t => t.done)) {
+            const allCoreDone = coreTasks.every(t => t.done);
+
+            if (!allCoreDone) {
                 alert("Gagal Closing! Semua tugas Akuntansi dan Pajak wajib dicentang selesai.");
                 return;
             }
 
-            if (ws.services.accounting && !ws.attachments.accounting) {
-                alert("Gagal Closing! Lampiran link Laporan Keuangan wajib diisi.");
+            let s = ws.services || { accounting: true, tax: true, special: false };
+            if (s.accounting && !ws.attachments.accounting) {
+                alert("Gagal Closing! Lampiran link server Laporan Keuangan wajib diisi untuk layanan Akuntansi.");
                 return;
             }
-            if (ws.services.tax && !ws.attachments.tax) {
-                alert("Gagal Closing! Lampiran link Laporan Ekualisasi Pajak wajib diisi.");
+            if (s.tax && !ws.attachments.tax) {
+                alert("Gagal Closing! Lampiran link server Laporan Ekualisasi Pajak wajib diisi untuk layanan Pajak.");
                 return;
-            }
-
-            // BARU: Rule Tambahan Special Case -> Jika ada item Special Case dicentang, WAJIB melampirkan minimal salah satu link
-            if (ws.services.special) {
-                const specialTasks = ws.tasks.filter(t => t.category === 'special');
-                const isAnySpecialDone = specialTasks.some(t => t.done);
-                
-                if (isAnySpecialDone) {
-                    // Wajib mengisi link (baik di kolom accounting/tax/tautan khusus server gudang data jika tersedia)
-                    if (!ws.attachments.special && !ws.attachments.accounting && !ws.attachments.tax) {
-                        alert("Gagal Closing! Salah satu pekerjaan 'Special Case' telah diselesaikan, Anda wajib mengisi Link Server Gudang Data khusus Special Case di bawah.");
-                        return;
-                    }
-                }
             }
 
             ws.isClosed = true;
             saveStateToLocalStorage();
             renderMainWorkspace();
             checkPeriodLockStatus();
-            alert(`Progress untuk ${ws.clientName} resmi CLOSED.`);
+            alert(`Progress untuk ${ws.clientName} resmi CLOSED & dikunci.`);
         }
 
         function renderMainWorkspace() {
@@ -1142,22 +1105,26 @@
             grid.innerHTML = '';
             kpiGrid.innerHTML = '';
 
-            const activeClientIds = appClients.filter(c => c.status === 'aktif').map(c => c.id);
-            const currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod && (activeClientIds.includes(ws.clientId) || ws.picId === 'UNASSIGNED'));
+            const currentPeriodSheets = appWorksheets.filter(ws => ws.period === activePeriod);
 
             if (loggedInUser.role === 'supervisor') {
                 appUsers.filter(u => u.role === 'pic').forEach(pic => {
                     const picSheets = currentPeriodSheets.filter(ws => ws.picId === pic.id);
-                    let totalCoreTasks = 0, finishedCoreTasks = 0, onTimeCoreTasks = 0;
+                    const workload = picSheets.length;
+                    
+                    let totalCoreTasks = 0;
+                    let finishedCoreTasks = 0;
+                    let onTimeCoreTasks = 0;
 
                     picSheets.forEach(ws => {
                         ws.tasks.forEach(t => {
-                            // Sesuai request: Kategori special case tetap dilewati (tidak memengaruhi persentase progres KPI)
                             if (t.category === 'accounting' || t.category === 'tax') {
                                 totalCoreTasks++;
                                 if (t.done) {
                                     finishedCoreTasks++;
-                                    if (t.completionDate && t.completionDate <= t.deadline) onTimeCoreTasks++;
+                                    if (t.completionDate && t.completionDate <= t.deadline) {
+                                        onTimeCoreTasks++;
+                                    }
                                 }
                             }
                         });
@@ -1170,7 +1137,7 @@
                         <div class="kpi-card">
                             <h4 style="margin:0 0 10px 0; color:var(--primary);">👤 ${pic.name}</h4>
                             <div style="font-size:13px; line-height: 1.6;">
-                                💼 Load Kerja: <strong>${picSheets.length} Klien Active</strong><br>
+                                💼 Load Kerja: <strong>${workload} Klien</strong><br>
                                 📈 Progress Capaian: <strong>${progressPct}%</strong><br>
                                 ⏱️ Ketepatan Waktu: <strong>${timelinessPct}%</strong>
                             </div>
@@ -1182,30 +1149,25 @@
             let visibleSheets = currentPeriodSheets;
             if (loggedInUser.role === 'supervisor') {
                 const selectedPicFilter = document.getElementById('supervisorPicSelectFilter').value;
-                if (selectedPicFilter === 'UNASSIGNED') {
-                    visibleSheets = currentPeriodSheets.filter(ws => ws.picId === "UNASSIGNED" || !appUsers.some(u => u.id === ws.picId));
-                } else if (selectedPicFilter !== 'ALL') {
-                    visibleSheets = currentPeriodSheets.filter(ws => ws.picId === selectedPicFilter);
+                if (selectedPicFilter !== 'ALL') {
+                    visibleSheets = visibleSheets.filter(ws => ws.picId === selectedPicFilter);
                 }
 
-                // MODIFIKASI: Implementasi filter Jenis Klien pada Workspace Utama Supervisor
-                const selectedTypeFilter = document.getElementById('supervisorTypeSelectFilter').value;
+                const selectedTypeFilter = document.getElementById('supervisorClientTypeSelectFilter').value;
                 if (selectedTypeFilter !== 'ALL') {
-                    visibleSheets = visibleSheets.filter(ws => ws.clientType === selectedTypeFilter);
+                    visibleSheets = visibleSheets.filter(ws => (ws.clientType || 'Badan') === selectedTypeFilter);
                 }
             } else {
                 visibleSheets = currentPeriodSheets.filter(ws => ws.picId === loggedInUser.id);
             }
 
             if (visibleSheets.length === 0) {
-                grid.innerHTML = `<p style="color:var(--text-muted); font-style:italic; grid-column: 1/-1; text-align:center; padding:30px;">Tidak ada progress matriks klien aktif saat ini.</p>`;
+                grid.innerHTML = `<p style="color:var(--text-muted); font-style:italic; grid-column: 1/-1; text-align:center; padding:30px;">Tidak ada progress klien yang cocok dengan filter aktif.</p>`;
                 return;
             }
 
             visibleSheets.forEach(ws => {
                 let services = ws.services || { accounting: true, tax: true, special: false };
-                
-                // Sesuai request: Menghitung persentase progres kartu tetap hanya berdasarkan coreTasks (Akuntansi & Pajak)
                 const coreTasks = ws.tasks.filter(t => t.category === 'accounting' || t.category === 'tax');
                 const completedCore = coreTasks.filter(t => t.done).length;
                 const progressPercentage = coreTasks.length > 0 ? Math.round((completedCore / coreTasks.length) * 100) : 0;
@@ -1213,23 +1175,45 @@
                 const card = document.createElement('div');
                 card.className = `client-card ${ws.isClosed ? 'is-closed' : ''}`;
 
-                const picNameObj = appUsers.find(u => u.id === ws.picId);
-                let picLabelText = picNameObj ? picNameObj.name : "⚠️ Unassigned (Menggantung)";
-                let isUnassigned = !picNameObj || ws.picId === "UNASSIGNED";
+                let picSelectionWidget = '';
+                let deleteUnassignedButton = '';
+                
+                if (loggedInUser.role === 'supervisor') {
+                    picSelectionWidget = `<select style="font-size:11px; font-weight:bold; padding:3px; border-radius:4px;" onchange="updateClientPicDirectly('${ws.id}', this.value)">`;
+                    picSelectionWidget += `<option value="unassigned" ${ws.picId === 'unassigned' ? 'selected' : ''}>Reviewer: Unassigned</option>`;
+                    appUsers.filter(u => u.role === 'pic').forEach(p => {
+                        picSelectionWidget += `<option value="${p.id}" ${ws.picId === p.id ? 'selected' : ''}>Reviewer: ${p.name}</option>`;
+                    });
+                    picSelectionWidget += `</select>`;
 
-                let picSelectionWidget = `<div style="font-size:12px; font-weight:500; color:${isUnassigned ? 'var(--danger)':'var(--text-muted)'};">Reviewer PIC: <strong>${picLabelText}</strong></div>`;
-                let fieldsDisabled = (ws.isClosed && loggedInUser.role !== 'supervisor') || isUnassigned;
+                    if (ws.picId === 'unassigned') {
+                        deleteUnassignedButton = `
+                            <button class="btn-danger" style="padding: 3px 8px; font-size: 11px; margin-left: 10px;" 
+                                onclick="deleteWorksheetCardDirectly('${ws.id}', '${ws.clientName}')">🗑️ Hapus Klien</button>
+                        `;
+                    }
+                } else {
+                    const picNameObj = appUsers.find(u => u.id === ws.picId) || { name: 'Unassigned' };
+                    picSelectionWidget = `<div style="font-size:12px; font-weight:500; color:var(--text-muted);">Reviewer: <strong>${picNameObj.name}</strong></div>`;
+                }
 
-                let clientTypeLabel = ws.clientType === 'perorangan' ? '👤 Perorangan' : '🏢 Badan';
-                let clientTypeClass = ws.clientType === 'perorangan' ? 'type-perorangan' : 'type-badan';
+                let fieldsDisabled = ws.isClosed;
+                if (loggedInUser.role === 'supervisor') {
+                    fieldsDisabled = false;
+                }
+
+                let cType = ws.clientType || "Badan";
+                let typeBadge = `<span class="badge-client-type ${cType === 'Perorangan' ? 'badge-perorangan' : 'badge-badan'}">${cType}</span>`;
 
                 let htmlContent = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                        <div class="client-title">${ws.clientName}</div>
-                        <span class="type-badge ${clientTypeClass}" style="white-space: nowrap; margin-top: 5px;">${clientTypeLabel}</span>
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+                        <div class="client-title" style="margin:0;">${ws.clientName} ${typeBadge}</div>
+                        ${deleteUnassignedButton}
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top: 5px;">
-                        <div style="font-size:12px; color:var(--text-muted); font-weight:bold;">Status: ${ws.isClosed ? '🟢 CLOSED' : '⏳ OPEN'}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:bold;">
+                            Status Berkas: ${ws.isClosed ? '🟢 CLOSED' : '⏳ OPEN'}
+                        </div>
                         ${picSelectionWidget}
                     </div>
 
@@ -1237,38 +1221,37 @@
                         <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
                     </div>
                     <div style="font-size: 11px; font-weight: bold; text-align: right; margin-bottom: 15px; color: var(--text-muted);">
-                        Progress: <span style="color:var(--success); font-size:13px;">${progressPercentage}%</span>
+                        Progress (Akuntansi & Pajak): <span style="color:var(--success); font-size:13px;">${progressPercentage}%</span>
                     </div>
                 `;
 
-                if (isUnassigned && loggedInUser.role === 'supervisor') {
-                    htmlContent += `
-                        <div style="background: rgba(239, 68, 68, 0.08); padding: 12px; border-radius: 8px; border: 1px solid var(--danger); margin-bottom:15px; text-align:center;">
-                            <span style="font-size:12px; font-weight:bold; color:var(--danger); display:block; margin-bottom:8px;">⚠️ Berkas ini menggantung tanpa PIC aktif!</span>
-                            <button class="btn-danger" style="width:100%; font-size:12px; padding:6px;" onclick="deleteUnassignedWorksheet('${ws.id}')">🗑️ Hapus Berkas Menggantung</button>
-                        </div>
-                    `;
-                }
-
                 const categories = [
-                    { key: "accounting", title: "📂 Pekerjaan Akuntansi", class: "acc-sec", active: services.accounting },
-                    { key: "tax", title: "⚖️ Pekerjaan Pajak", class: "tax-sec", active: services.tax },
-                    { key: "special", title: "⚡ Special Case (Advisory)", class: "spec-sec", active: services.special }
+                    { key: "accounting", title: "📂 Detail Pekerjaan Akuntansi", class: "acc-sec", active: services.accounting },
+                    { key: "tax", title: "⚖️ Detail Pekerjaan Pajak", class: "tax-sec", active: services.tax },
+                    { key: "special", title: "⚡ Detail Pekerjaan Special Case (Advisory)", class: "spec-sec", active: services.special }
                 ];
 
                 categories.forEach(cat => {
                     if (!cat.active) return;
+
                     htmlContent += `<div class="job-section ${cat.class}"><div class="job-title">${cat.title}</div>`;
 
                     ws.tasks.filter(t => t.category === cat.key).forEach(task => {
                         const isOverdue = (!task.done && new Date().toISOString().split('T')[0] > task.deadline);
+                        
+                        let mandatoryAlertSpan = '';
+                        if (cat.key === "special" && task.done && !ws.attachments.special) {
+                            mandatoryAlertSpan = `<span style="color:var(--danger); font-size:10px; font-weight:bold; margin-left:5px;">⚠️ Link Wajib Diisi!</span>`;
+                        }
+
                         htmlContent += `
                             <div class="task-row">
                                 <div style="display:flex; align-items:center; flex:1; min-width:0;">
                                     <input type="checkbox" ${task.done ? 'checked' : ''} ${fieldsDisabled ? 'disabled' : ''} 
                                         onchange="updateTaskCheckbox('${ws.id}', '${task.id}', this.checked)">
-                                    <span class="${task.done ? 'text-done' : ''}">${task.name}</span>
+                                    <span class="${task.done ? 'text-done' : ''}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${task.name}</span>
                                     ${isOverdue ? `<span class="badge-late">LATE</span>` : ''}
+                                    ${mandatoryAlertSpan}
                                 </div>
                                 <input type="date" value="${task.deadline}" ${fieldsDisabled ? 'disabled' : ''} 
                                     onchange="updateTaskDeadline('${ws.id}', '${task.id}', this.value)" style="margin-left:5px;">
@@ -1281,46 +1264,78 @@
                                     <select class="special-detail-select" ${fieldsDisabled ? 'disabled' : ''} 
                                         onchange="updateSpecialProgressDetail('${ws.id}', '${task.id}', this.value)">
                                         <option value="Belum Dimulai" ${task.progressDetail === 'Belum Dimulai' ? 'selected':''}>🔴 Belum Dimulai</option>
-                                        <option value="Permintaan Dokumen" ${task.progressDetail === 'Permintaan Dokumen' ? 'selected':''}>🟡 Permintaan Dokumen</option>
-                                        <option value="Penyusunan Draft" ${task.progressDetail === 'Penyusunan Draft' ? 'selected':''}>🔵 Penyusunan Draft</option>
-                                        <option value="Selesai Sempurna" ${task.progressDetail === 'Selesai Sempurna' ? 'selected':''}>🟢 Selesai Sempurna</option>
+                                        <option value="Permintaan Keterangan Dokumen" ${task.progressDetail === 'Permintaan Keterangan Dokumen' ? 'selected':''}>🟡 Permintaan Keterangan Dokumen</option>
+                                        <option value="Penyusunan Draft Dokumen Tanggapan" ${task.progressDetail === 'Penyusunan Draft Dokumen Tanggapan' ? 'selected':''}>🔵 Penyusunan Draft Dokumen Tanggapan</option>
+                                        <option value="Proses Pengajuan Ke KPP" ${task.progressDetail === 'Proses Pengajuan Ke KPP' ? 'selected':''}>🟠 Proses Pengajuan Ke KPP</option>
+                                        <option value="Selesai Sempurna / SPH Terbit" ${task.progressDetail === 'Selesai Sempurna / SPH Terbit' ? 'selected':''}>🟢 Selesai Sempurna</option>
                                     </select>
                                 </div>
                             `;
                         }
                     });
+
                     htmlContent += `</div>`;
                 });
 
                 htmlContent += `
                     <div class="extra-task-box">
-                        <label>📝 Hambatan / Tugas Tambahan:</label>
-                        <textarea rows="2" placeholder="${isUnassigned ? 'Pilih PIC terlebih dahulu...' : 'Tuliskan kendala...'}" ${fieldsDisabled ? 'disabled' : ''} 
+                        <label>📝 Ringkasan Hambatan / Tugas Tambahan Ad-Hoc:</label>
+                        <textarea rows="2" placeholder="Tuliskan jika ada kendala di luar scope utama..." 
+                            ${fieldsDisabled ? 'disabled' : ''} 
                             onchange="updateExtraExplanation('${ws.id}', this.value)">${ws.extraWorkExplanation || ''}</textarea>
-                    </div>
-                    <div class="attachment-zone">
-                        <span style="font-size:12px; font-weight:bold; color:var(--primary);">🔗 Tautan Server Gudang Data</span>
-                        ${services.accounting ? `<label>Link LK:</label><input type="url" value="${ws.attachments.accounting || ''}" ${fieldsDisabled ? 'disabled' : ''} onchange="updateAttachmentLink('${ws.id}', 'accounting', this.value)">` : ''}
-                        ${services.tax ? `<label>Link Ekualisasi:</label><input type="url" value="${ws.attachments.tax || ''}" ${fieldsDisabled ? 'disabled' : ''} onchange="updateAttachmentLink('${ws.id}', 'tax', this.value)">` : ''}
-                        ${services.special ? `<label>Link Dokumen Special Case:</label><input type="url" value="${ws.attachments.special || ''}" ${fieldsDisabled ? 'disabled' : ''} onchange="updateAttachmentLink('${ws.id}', 'special', this.value)" placeholder="Wajib diisi jika ada tugas Special Case yang dicentang...">` : ''}
                     </div>
                 `;
 
-                if (!isUnassigned) {
-                    if (!ws.isClosed) {
-                        htmlContent += `<button class="btn-success" style="width:100%; font-size:12px; padding:8px; margin-top:12px;" onclick="submitClosingClient('${ws.id}')">🔒 Ajukan Tutup Progress Bulanan</button>`;
+                htmlContent += `
+                    <div class="attachment-zone">
+                        <span style="font-size:12px; font-weight:bold; color:var(--primary);">🔗 Tautan File Akses Server Gudang Data</span>
+                        
+                        ${services.accounting ? `
+                        <label>Link Laporan Keuangan (Wajib Akuntansi):</label>
+                        <input type="url" placeholder="https://server-idc.internal/accounting/file" 
+                            value="${ws.attachments.accounting || ''}" ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateAttachmentLink('${ws.id}', 'accounting', this.value)">
+                        ` : ''}
+
+                        ${services.tax ? `
+                        <label>Link Laporan Ekualisasi (Wajib Pajak):</label>
+                        <input type="url" placeholder="https://server-idc.internal/tax/file" 
+                            value="${ws.attachments.tax || ''}" ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateAttachmentLink('${ws.id}', 'tax', this.value)">
+                        ` : ''}
+
+                        ${services.special ? `
+                        <label>Link Surat Tanggapan (Wajib jika Special Case Dencentang):</label>
+                        <input type="url" placeholder="https://server-idc.internal/special/file" 
+                            value="${ws.attachments.special || ''}" ${fieldsDisabled ? 'disabled' : ''} 
+                            onchange="updateAttachmentLink('${ws.id}', 'special', this.value)">
+                        ` : ''}
+                `;
+
+                if (!ws.isClosed) {
+                    htmlContent += `
+                        <button class="btn-success" style="width:100%; font-size:12px; padding:8px; margin-top:12px;" 
+                            onclick="submitClosingClient('${ws.id}')">🔒 Ajukan Tutup Progress Bulanan</button>
+                    `;
+                } else {
+                    if (loggedInUser.role === 'supervisor') {
+                        htmlContent += `
+                            <div style="margin-top:10px; margin-bottom: 5px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
+                                ✓ Dokumen Closed (Dapat diedit oleh Supervisor)
+                            </div>
+                            <button class="btn-danger" style="width:100%; font-size:11px; padding:6px; margin-top:4px;" 
+                                onclick="reopenClientWorkspace('${ws.id}')">🔓 Buka Paksa Kunci Berkas</button>
+                        `;
                     } else {
-                        if (loggedInUser.role === 'supervisor') {
-                            htmlContent += `
-                                <div style="margin-top:10px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">✓ Closed (Supervisor Mode)</div>
-                                <button class="btn-danger" style="width:100%; font-size:11px; padding:6px; margin-top:4px;" onclick="reopenClientWorkspace('${ws.id}')">🔓 Buka Paksa Kunci Berkas</button>
-                            `;
-                        } else {
-                            htmlContent += `<div style="margin-top:10px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">✓ Dokumen Dikunci (Closed)</div>`;
-                        }
+                        htmlContent += `
+                            <div style="margin-top:10px; background:#d1fae5; color:#065f46; padding:8px; border-radius:4px; font-size:12px; text-align:center; font-weight:bold;">
+                                ✓ Dokumen Dikunci (Closed)
+                            </div>
+                        `;
                     }
                 }
 
+                htmlContent += `</div>`;
                 card.innerHTML = htmlContent;
                 grid.appendChild(card);
             });
@@ -1333,12 +1348,15 @@
                 saveStateToLocalStorage();
                 renderMainWorkspace();
                 checkPeriodLockStatus();
+                alert(`Berkas ${ws.clientName} berhasil dibuka kembali.`);
             }
         }
 
         function applyTheme(themeName) {
             document.body.className = '';
-            if (themeName !== 'corporate') document.body.classList.add('theme-' + themeName);
+            if (themeName !== 'corporate') {
+                document.body.classList.add('theme-' + themeName);
+            }
             localStorage.setItem('idc_saved_theme_v4', themeName);
         }
 
@@ -1346,18 +1364,6 @@
             document.documentElement.style.setProperty('--font-family', fontName);
             localStorage.setItem('idc_saved_font_v4', fontName);
         }
-
-        window.addEventListener('storage', (e) => {
-            if (['idc_worksheets_v4', 'idc_users_v4', 'idc_clients_v4'].includes(e.key)) {
-                appUsers = JSON.parse(localStorage.getItem('idc_users_v4')) || initialUsers;
-                appClients = JSON.parse(localStorage.getItem('idc_clients_v4')) || initialClients;
-                appWorksheets = JSON.parse(localStorage.getItem('idc_worksheets_v4')) || [];
-                if (loggedInUser) {
-                    renderMainWorkspace();
-                    if (loggedInUser.role === 'supervisor') renderSupervisorTables();
-                }
-            }
-        });
 
         window.onload = function() {
             initLoginInterface();
@@ -1367,7 +1373,6 @@
             document.getElementById('fontSelector').value = savedFont;
             applyTheme(savedTheme);
             applyFont(savedFont);
-            setTimeout(syncToGoogleSheet, 2000);
         };
     </script>
 </body>
